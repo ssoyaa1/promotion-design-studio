@@ -1,0 +1,146 @@
+/* =================================================================
+   MyRealTrip Design System — Colors & Type (ported from
+   reference/colors_and_type.css). Pretendard is loaded from the
+   CDN in index.html, so the local @font-face block is dropped.
+   ================================================================= */
+:root {
+  --font-family-base: 'Pretendard', 'SF Pro KR', 'SF Pro Display',
+    -apple-system, BlinkMacSystemFont, 'Noto Sans KR', 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* ============  PALETTE  ============ */
+  --white: #ffffff;
+  --black: #000000;
+
+  /* Gray — primary neutral scale. s1000 is the brand "primary". */
+  --gray-s50: #f8f9fa;
+  --gray-s60: #f5f6f7;
+  --gray-s80: #f1f3f5;
+  --gray-s100: #e9ecef;
+  --gray-s200: #dee2e6;
+  --gray-s300: #ced4da;
+  --gray-s400: #adb5bd;
+  --gray-s500: #848c94;
+  --gray-s600: #666d75;
+  --gray-s700: #495056;
+  --gray-s800: #343a40;
+  --gray-s900: #212529;
+  --gray-s1000: #101418;
+
+  /* Blue — brand accent. s500 is the bright CTA / links / focus. */
+  --blue-s50: #f5fbff;
+  --blue-s80: #e7f4fd;
+  --blue-s100: #cbe7fd;
+  --blue-s200: #a7d4f9;
+  --blue-s300: #79bef5;
+  --blue-s400: #51abf3;
+  --blue-s500: #2b96ed; /* brand blue */
+  --blue-s600: #1583db;
+  --blue-s700: #0a70c2;
+  --blue-s800: #025ba5;
+  --blue-s900: #01457d;
+
+  /* Green — success, price drops, saved */
+  --green-s50: #e6f8f3;
+  --green-s80: #d7f6ee;
+  --green-s100: #94e7d1;
+  --green-s200: #71d2b8;
+  --green-s300: #58caab;
+  --green-s400: #33b893;
+  --green-s500: #27ab86;
+  --green-s600: #1c9674;
+  --green-s700: #137b5e;
+  --green-s800: #10634c;
+  --green-s900: #0a4534;
+
+  /* Yellow — ratings, warnings, price emphasis */
+  --yellow-s50: #fff8e1;
+  --yellow-s80: #fff2c6;
+  --yellow-s100: #ffe182;
+  --yellow-s200: #ffd74e;
+  --yellow-s300: #ffc929;
+  --yellow-s400: #ffbf00;
+  --yellow-s500: #ffad01;
+  --yellow-s600: #ff9a00;
+  --yellow-s700: #f78000;
+  --yellow-s800: #db5600;
+  --yellow-s900: #b94100;
+
+  /* Red — errors, urgency, destructive */
+  --red-s50: #fbf1ef;
+  --red-s80: #ffd4cc;
+  --red-s100: #ffaea1;
+  --red-s200: #ff8d7c;
+  --red-s300: #fe6a54;
+  --red-s400: #fa5b4a;
+  --red-s500: #ec4937;
+  --red-s600: #dd3c2a;
+  --red-s700: #c83323;
+  --red-s800: #aa2a1b;
+  --red-s900: #8d2115;
+
+  /* Purple — member/premium tier, highlights */
+  --purple-s50: #f6f0ff;
+  --purple-s80: #e6d7fe;
+  --purple-s100: #d0b4fd;
+  --purple-s200: #b080ff;
+  --purple-s300: #a26ef7;
+  --purple-s400: #9355f6;
+  --purple-s500: #8238fa;
+  --purple-s600: #7226ed;
+  --purple-s700: #520fbd;
+  --purple-s800: #3d0b8e;
+  --purple-s900: #29085e;
+
+  /* ============  SEMANTIC  ============ */
+  --fg-primary: var(--gray-s1000);
+  --fg-secondary: var(--gray-s700);
+  --fg-tertiary: var(--gray-s500);
+  --fg-quaternary: var(--gray-s400);
+  --fg-inverse: var(--white);
+  --fg-brand: var(--blue-s500);
+  --fg-success: var(--green-s500);
+  --fg-warning: var(--yellow-s700);
+  --fg-danger: var(--red-s500);
+
+  --bg-canvas: var(--gray-s80);
+  --bg-surface: var(--white);
+  --bg-subtle: var(--gray-s50);
+  --bg-muted: var(--gray-s80);
+  --bg-inverse: var(--gray-s1000);
+
+  --border-subtle: var(--gray-s100);
+  --border-default: var(--gray-s200);
+  --border-strong: var(--gray-s300);
+  --border-focus: var(--blue-s500);
+
+  /* ============  FONT WEIGHTS  ============ */
+  --fw-black: 800;
+  --fw-bold: 700;
+  --fw-semibold: 600;
+  --fw-medium: 500;
+  --fw-normal: 400;
+
+  /* ============  RADII  ============ */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-chip: 11px;
+  --radius-lg: 13px;
+  --radius-input: 10px;
+  --radius-card: 16px;
+  --radius-pill: 99px;
+
+  /* ============  SHADOWS  ============ */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --shadow-tab: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-frame-mobile: 0 4px 8px rgba(0, 0, 0, 0.05), 0 20px 50px rgba(0, 0, 0, 0.18);
+  --shadow-frame-pc: 0 4px 8px rgba(0, 0, 0, 0.05), 0 20px 50px rgba(0, 0, 0, 0.14);
+
+  /* ============  Z-INDEX  ============ */
+  --z-dialog: 20000;
+  --z-picker: 30000;
+
+  /* Price emphasis (kept as a named token used across route cards) */
+  --price-yellow: var(--yellow-s300);
+}

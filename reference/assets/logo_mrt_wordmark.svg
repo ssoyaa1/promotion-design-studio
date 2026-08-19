@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 44" fill="none">
+  <g transform="translate(8 10)">
+    <path d="M14 2L26 12 14 16 10 22 8 16 2 12 14 2z" fill="#2B96ED"></path>
+    <circle cx="14" cy="12" r="2" fill="#FFFFFF"></circle>
+  </g>
+  <text x="48" y="30" font-family="Pretendard, -apple-system, sans-serif" font-size="22" font-weight="800" fill="#101418" letter-spacing="-0.5">myrealtrip</text>
+</svg>

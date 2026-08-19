@@ -1,0 +1,488 @@
+import { useState } from 'react'
+import type { Studio } from '../state/useStudio'
+import type { Derived } from '../lib/derive'
+import { THEMES } from '../data/seed'
+import type { SectionKey, ThemeKey } from '../types'
+import { readFile } from '../lib/readFile'
+import { HIGHLIGHT_TITLE_COUNT, PRIZE_TITLE_COUNT, PURCHASE_TITLE_COUNT } from '../lib/highlightTitles'
+
+/** 랜덤 시드로 고르는 섹션 타이틀 — 우측 패널에서 새로고침 버튼으로 다시 뽑을 수 있게 한다. */
+const TITLE_SEED_CONFIG: Partial<Record<SectionKey, { key: 'prizeTitleSeed' | 'purchaseTitleSeed' | 'highlightTitleSeed'; count: number }>> = {
+  prize: { key: 'prizeTitleSeed', count: PRIZE_TITLE_COUNT },
+  purchase: { key: 'purchaseTitleSeed', count: PURCHASE_TITLE_COUNT },
+  highlight: { key: 'highlightTitleSeed', count: HIGHLIGHT_TITLE_COUNT },
+}
+
+export interface SheetAuth {
+  clientId: string
+  setClientId: (v: string) => void
+  authed: boolean
+  onDisconnect: () => void
+  tabs: { gid: string; title: string }[]
+  selectedGid: string
+  /** Pick a tab — reloads that tab immediately. */
+  onSelectTab: (gid: string) => void
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  height: 40,
+  marginTop: 5,
+  padding: '0 12px',
+  border: '1px solid #dee2e6',
+  borderRadius: 10,
+  fontSize: 14,
+  fontWeight: 600,
+  fontFamily: 'inherit',
+  color: '#101418',
+  letterSpacing: '-0.02em',
+  outline: 'none',
+}
+const fieldLabel: React.CSSProperties = { fontSize: 12, fontWeight: 700, color: '#666d75', letterSpacing: '-0.02em' }
+const hintStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: '#adb5bd',
+  fontWeight: 600,
+  marginTop: 6,
+  letterSpacing: '-0.02em',
+  lineHeight: 1.5,
+}
+
+export function SettingsPanel({
+  studio,
+  d,
+  useProxy,
+  setUseProxy,
+  onLoadSheet,
+  onExportAll,
+  auth,
+}: {
+  studio: Studio
+  d: Derived
+  useProxy: boolean
+  setUseProxy: (v: boolean) => void
+  onLoadSheet: () => void
+  onExportAll: () => void
+  auth: SheetAuth
+}) {
+  const { state, patch, setTheme, ovGet, setOv } = studio
+  const { exportDevLabel, sectionLabel, app } = d
+  const selKey = state.selectedKey
+  const selIsVisual = selKey === 'visual'
+  const titleSeedCfg = TITLE_SEED_CONFIG[selKey]
+  // 좌측 섹션 목록과 동일한 순번 매기기 기준(state.order 중 app에 포함된 것만) 재사용.
+  const orderedKeys = state.order.filter((k) => app.includes(k))
+  const selIdx = orderedKeys.indexOf(selKey)
+  const selNumberLabel = selIdx >= 0 ? `${exportDevLabel}-${String(selIdx + 1).padStart(2, '0')}` : ''
+  // Open "고급 설정" by default only on first run (no saved link to load yet).
+  const [authOpen, setAuthOpen] = useState(!state.sheetUrl.trim())
+
+  return (
+    <aside
+      className="cap-scroll"
+      style={{
+        width: 300,
+        flexShrink: 0,
+        background: '#fff',
+        borderLeft: '1px solid #e9ecef',
+        overflowY: 'auto',
+        minHeight: 0,
+      }}
+    >
+      {/* Google Sheet loader — one-click: paste link → 불러오기 */}
+      <div style={{ padding: '16px 18px 14px', borderBottom: '1px solid #f1f3f5' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#666d75', letterSpacing: '-0.02em' }}>📄 구글 시트</span>
+          {state.sheetStatus && /실패/.test(state.sheetStatus) ? (
+            <span style={{ fontSize: 14, color: '#e03131' }} title={state.sheetStatus}>✕</span>
+          ) : state.sheetStatus && /완료/.test(state.sheetStatus) ? (
+            <span style={{ fontSize: 14, color: '#2f9e44' }} title={state.sheetStatus}>✓</span>
+          ) : null}
+        </div>
+        {/* Tab select + small refresh. 🔄 does the load (auth → tabs → data);
+            picking a tab reloads it. Tabs populate after the first refresh. */}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <select
+            value={auth.selectedGid}
+            onChange={(e) => auth.onSelectTab(e.target.value)}
+            disabled={auth.tabs.length === 0}
+            style={{
+              flex: 1,
+              height: 38,
+              padding: '0 10px',
+              border: '1px solid #dee2e6',
+              borderRadius: 10,
+              fontSize: 12.5,
+              fontFamily: 'inherit',
+              fontWeight: 600,
+              color: auth.tabs.length ? '#101418' : '#adb5bd',
+              background: '#fff',
+              outline: 'none',
+            }}
+          >
+            {auth.tabs.length === 0 ? (
+              <option value="">🔄로 시트를 불러오세요</option>
+            ) : (
+              auth.tabs.map((t) => (
+                <option key={t.gid} value={t.gid}>
+                  {t.title}
+                </option>
+              ))
+            )}
+          </select>
+          <button
+            onClick={onLoadSheet}
+            title="시트 새로고침 (불러오기)"
+            style={{
+              width: 40,
+              height: 38,
+              flexShrink: 0,
+              border: 0,
+              borderRadius: 10,
+              background: '#101418',
+              color: '#fff',
+              fontSize: 15,
+              cursor: 'pointer',
+            }}
+          >
+            🔄
+          </button>
+        </div>
+
+        {state.sheetStatus && !/실패|완료/.test(state.sheetStatus) && (
+          <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 600, color: '#666d75', letterSpacing: '-0.02em' }}>
+            {state.sheetStatus}
+          </div>
+        )}
+
+        {/* Advanced — auth details most users never need to open */}
+        <button
+          onClick={() => setAuthOpen((v) => !v)}
+          style={{
+            border: 0,
+            background: 'transparent',
+            padding: '10px 0 0',
+            fontSize: 11,
+            fontWeight: 700,
+            color: '#adb5bd',
+            letterSpacing: '-0.02em',
+            cursor: 'pointer',
+          }}
+        >
+          고급 설정 (링크 · OAuth) {authOpen ? '▲' : '▼'}
+        </button>
+        {authOpen && (
+          <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* sheet link — entered once, persisted; the 시트 불러오기 button uses it */}
+            <div>
+              <span style={fieldLabel}>구글 시트 링크</span>
+              <input
+                value={state.sheetUrl}
+                onChange={(e) => patch({ sheetUrl: e.target.value })}
+                placeholder="구글 시트 공유 링크 붙여넣기"
+                style={{ ...inputStyle, height: 36, marginTop: 5, fontSize: 11.5, fontWeight: 500 }}
+              />
+            </div>
+
+            {/* connection status + disconnect */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '8px 10px',
+                background: auth.authed ? '#e6f8f3' : '#f8f9fa',
+                borderRadius: 10,
+              }}
+            >
+              <span style={{ fontSize: 13 }}>{auth.authed ? '🟢' : '⚪'}</span>
+              <span style={{ flex: 1, fontSize: 12, fontWeight: 700, letterSpacing: '-0.02em', color: auth.authed ? '#137b5e' : '#666d75' }}>
+                {auth.authed ? '구글 계정 연결됨' : '구글 계정 미연결'}
+              </span>
+              {auth.authed && (
+                <button
+                  onClick={auth.onDisconnect}
+                  style={{
+                    border: 0,
+                    borderRadius: 99,
+                    padding: '0 12px',
+                    height: 28,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    cursor: 'pointer',
+                    background: '#dee2e6',
+                    color: '#495056',
+                  }}
+                >
+                  해제
+                </button>
+              )}
+            </div>
+
+            {/* OAuth client id */}
+            <div>
+              <span style={fieldLabel}>OAuth 클라이언트 ID</span>
+              <input
+                value={auth.clientId}
+                onChange={(e) => auth.setClientId(e.target.value)}
+                placeholder="xxxxxxxx.apps.googleusercontent.com"
+                style={{ ...inputStyle, height: 36, marginTop: 5, fontSize: 11.5, fontWeight: 500 }}
+              />
+              <div style={hintStyle}>
+                승인된 JS 원본: <b>{location.origin}</b>
+              </div>
+            </div>
+
+            {/* proxy — only relevant for the public CSV path (no client id) */}
+            {!auth.clientId.trim() && (
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: '#666d75',
+                  letterSpacing: '-0.02em',
+                  cursor: 'pointer',
+                }}
+              >
+                <input type="checkbox" checked={useProxy} onChange={(e) => setUseProxy(e.target.checked)} />
+                프록시로 불러오기
+              </label>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* selected-section header */}
+      <div style={{ padding: '16px 18px 8px' }}>
+        <div style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.03em' }}>
+          {selNumberLabel && (
+            <span style={{ color: '#adb5bd', fontWeight: 700, marginRight: 6 }}>{selNumberLabel}</span>
+          )}
+          {sectionLabel(selKey)}
+        </div>
+      </div>
+
+      {/* selected-section form */}
+      <div style={{ padding: '6px 18px 18px', borderBottom: '1px solid #f1f3f5' }}>
+        {selIsVisual && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* 항공사 로고 / 기체 이미지 — 2열 */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div>
+                <span style={fieldLabel}>항공사 로고</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
+                  <label style={uploadTile}>
+                    업로드
+                    <input type="file" accept="image/*" onChange={(e) => readFile(e, (u) => patch({ airlineLogo: u }))} style={{ display: 'none' }} />
+                  </label>
+                  {state.airlineLogo && (
+                    <button onClick={() => patch({ airlineLogo: null })} style={resetBtn}>
+                      초기화
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <span style={fieldLabel}>기체 이미지</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
+                  <label style={uploadTile}>
+                    업로드
+                    <input type="file" accept="image/*" onChange={(e) => readFile(e, (u) => patch({ planeImage: u }))} style={{ display: 'none' }} />
+                  </label>
+                  {state.planeImage && (
+                    <button onClick={() => patch({ planeImage: null })} style={resetBtn}>
+                      초기화
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 기체 위치·크기 슬라이더 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#495057' }}>세로 위치</span>
+                  <span style={{ fontSize: 12, color: '#868e96' }}>{state.planeOffsetY > 0 ? '+' : ''}{state.planeOffsetY}%</span>
+                </div>
+                <input
+                  type="range" min={-30} max={30} step={1}
+                  value={state.planeOffsetY}
+                  onChange={(e) => patch({ planeOffsetY: Number(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#495057' }}>크기</span>
+                  <span style={{ fontSize: 12, color: '#868e96' }}>{state.planeScale}%</span>
+                </div>
+                <input
+                  type="range" min={40} max={160} step={5}
+                  value={state.planeScale}
+                  onChange={(e) => patch({ planeScale: Number(e.target.value) })}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <button
+                onClick={() => patch({ planeOffsetY: 0, planeScale: 100 })}
+                style={{ height: 32, border: '1px solid #dee2e6', borderRadius: 8, background: '#fff', fontSize: 12, fontWeight: 600, color: '#495057', cursor: 'pointer', letterSpacing: '-0.02em' }}
+              >
+                위치·크기 초기화
+              </button>
+            </div>
+
+            {/* 배경 이미지 — 2열 (업로드 / 다음 이미지) */}
+            <div>
+              <span style={fieldLabel}>배경 이미지</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}>
+                <label style={uploadTile}>
+                  업로드
+                  <input type="file" accept="image/*" onChange={(e) => readFile(e, (u) => patch({ heroImage: u, imagesLoaded: true }))} style={{ display: 'none' }} />
+                </label>
+                <button onClick={() => patch({ heroImage: null, skyIndex: ((state.skyIndex ?? 0) + 1) % 8 })} style={secondaryBtn}>
+                  다음 이미지
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!selIsVisual && (selKey === 'highlight' || titleSeedCfg) && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {selKey === 'highlight' && (
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                  height: 40,
+                  padding: '0 2px',
+                  cursor: 'pointer',
+                }}
+              >
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#101418', letterSpacing: '-0.02em' }}>
+                  출발지 노출
+                </span>
+                <input
+                  type="checkbox"
+                  checked={ovGet('hlShowFrom', 'on') === 'on'}
+                  onChange={(e) => setOv('hlShowFrom', e.target.checked ? 'on' : 'off')}
+                />
+              </label>
+            )}
+            {titleSeedCfg && (
+              <button
+                onClick={() =>
+                  patch({ [titleSeedCfg.key]: ((state[titleSeedCfg.key] ?? 0) + 1) % titleSeedCfg.count })
+                }
+                style={{
+                  width: '100%',
+                  height: 40,
+                  border: '1px solid #dee2e6',
+                  borderRadius: 10,
+                  background: '#fff',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#101418',
+                  cursor: 'pointer',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                🔄 타이틀 새로고침
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* theme */}
+      <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f3f5' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#666d75', letterSpacing: '-0.02em', marginBottom: 11 }}>
+          스타일 테마
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, justifyItems: 'center' }}>
+          {(Object.keys(THEMES) as ThemeKey[]).map((key) => {
+            const t = THEMES[key]
+            const on = state.theme === key
+            return (
+              <button
+                key={key}
+                onClick={() => setTheme(key)}
+                title={t.name}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 99,
+                  cursor: 'pointer',
+                  background: t.accent,
+                  border: `3px solid ${on ? '#fff' : 'transparent'}`,
+                  boxShadow: on ? `0 0 0 2px ${t.accent}` : '0 0 0 1px #e9ecef',
+                }}
+              />
+            )
+          })}
+        </div>
+      </div>
+
+      {/* CMS export */}
+      <div style={{ padding: '16px 18px', borderTop: '1px solid #f1f3f5' }}>
+        <button
+          onClick={onExportAll}
+          style={{ width: '100%', height: 44, border: 0, borderRadius: 12, background: '#101418', color: '#fff', fontSize: 14, fontWeight: 700, letterSpacing: '-0.02em', cursor: 'pointer' }}
+        >
+          ⬇ 전체 섹션 저장 · {exportDevLabel}
+        </button>
+      </div>
+    </aside>
+  )
+}
+
+const uploadTile: React.CSSProperties = {
+  display: 'flex',
+  width: '100%',
+  height: 40,
+  border: '1px dashed #ced4da',
+  borderRadius: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 13,
+  fontWeight: 600,
+  color: '#666d75',
+  cursor: 'pointer',
+  letterSpacing: '-0.02em',
+}
+
+/** 항공사 로고/기체 이미지 옆의 "초기화" 버튼 — uploadTile과 같은 크기·정렬로 통일. */
+const resetBtn: React.CSSProperties = {
+  width: '100%',
+  height: 40,
+  border: 0,
+  borderRadius: 10,
+  background: '#ffe3e3',
+  fontSize: 13,
+  fontWeight: 700,
+  color: '#c92a2a',
+  cursor: 'pointer',
+  letterSpacing: '-0.02em',
+}
+
+/** 배경 이미지 "다음 이미지" 버튼 — uploadTile과 같은 크기·정렬로 통일. */
+const secondaryBtn: React.CSSProperties = {
+  width: '100%',
+  height: 40,
+  border: '1px solid #dee2e6',
+  borderRadius: 10,
+  background: '#fff',
+  fontSize: 13,
+  fontWeight: 700,
+  color: '#101418',
+  cursor: 'pointer',
+  letterSpacing: '-0.02em',
+}

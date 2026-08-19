@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;font-family:'Pretendard',-apple-system,'Noto Sans KR',sans-serif;color:#101418;background:#f1f3f5}
+  a{color:#2b96ed;text-decoration:none}
+  a:hover{color:#1583db}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:#ced4da;border-radius:99px;border:2px solid transparent;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:#adb5bd;background-clip:padding-box}
+  .cap-scroll::-webkit-scrollbar{display:none}
+  [contenteditable]{outline:none;border-radius:4px;transition:box-shadow .12s}
+  [contenteditable]:hover{box-shadow:0 0 0 1.5px rgba(43,150,237,.35)}
+  [contenteditable]:focus{box-shadow:0 0 0 2px #2b96ed}
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;height:100vh;width:100%;overflow:hidden;background:#f1f3f5">
+
+  <!-- ===== TOP BAR ===== -->
+  <header style="display:flex;align-items:center;gap:16px;height:60px;flex-shrink:0;padding:0 20px;background:#fff;border-bottom:1px solid #e9ecef;z-index:10">
+    <img src="assets/logo_mrt_wordmark.svg" alt="MyRealTrip" style="height:20px;width:auto"/>
+    <div style="width:1px;height:22px;background:#e9ecef"></div>
+    <span style="font-size:15px;font-weight:700;letter-spacing:-0.02em;color:#101418;white-space:nowrap">프로모션 자동 생성</span>
+
+    <div style="flex:1"></div>
+
+    <!-- promo type toggle -->
+    <div style="display:flex;background:#f1f3f5;border-radius:99px;padding:3px;gap:2px">
+      <button onClick="{{ setLive }}" style="{{ liveTabStyle }}">라이브</button>
+      <button onClick="{{ setPlan }}" style="{{ planTabStyle }}">기획전</button>
+    </div>
+
+    <!-- device toggle -->
+    <div style="display:flex;background:#f1f3f5;border-radius:99px;padding:3px;gap:2px">
+      <button onClick="{{ setMobile }}" title="모바일" style="{{ mobTabStyle }}">📱 모바일</button>
+      <button onClick="{{ setPc }}" title="PC" style="{{ pcTabStyle }}">🖥 PC</button>
+    </div>
+
+    <button onClick="{{ toggleImages }}" style="height:38px;padding:0 15px;border:1px solid #e9ecef;background:#fff;color:#495056;border-radius:99px;font-size:13px;font-weight:600;letter-spacing:-0.02em;cursor:pointer;white-space:nowrap">{{ imgBtnLabel }}</button>
+    <button onClick="{{ exportAll }}" style="height:38px;padding:0 16px;border:0;background:#101418;color:#fff;border-radius:99px;font-size:14px;font-weight:600;letter-spacing:-0.02em;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">⬇ 전체 저장 · {{ exportDevLabel }}</button>
+  </header>
+
+  <div style="display:flex;flex:1;min-height:0">
+
+    <!-- ===== LEFT : SECTIONS ===== -->
+    <aside style="width:236px;flex-shrink:0;background:#fff;border-right:1px solid #e9ecef;display:flex;flex-direction:column;min-height:0">
+      <div style="padding:16px 16px 10px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.04em;color:#adb5bd">SECTIONS</div>
+        <div style="font-size:13px;font-weight:600;color:#848c94;margin-top:3px;letter-spacing:-0.02em">드래그로 순서 변경 · 눈으로 숨기기</div>
+      </div>
+
+      <div class="cap-scroll" style="flex:1;overflow-y:auto;padding:0 10px 12px">
+        <sc-for list="{{ sectionList }}" as="s" hint-placeholder-count="6">
+          <div draggable="{{ s.draggable }}" onDragStart="{{ s.onDragStart }}" onDragOver="{{ onDragOver }}" onDrop="{{ s.onDrop }}" onClick="{{ s.onSelect }}" style="{{ s.rowStyle }}">
+            <span style="cursor:grab;color:#ced4da;font-size:13px;user-select:none">⠿</span>
+            <span style="width:22px;height:22px;border-radius:6px;background:{{ s.dotBg }};color:{{ s.dotFg }};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">{{ s.step }}</span>
+            <span style="flex:1;font-size:13.5px;font-weight:600;letter-spacing:-0.02em;color:{{ s.labelColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.label }}</span>
+            <button onClick="{{ s.onExport }}" title="이 섹션만 이미지로 저장" style="border:0;background:transparent;cursor:pointer;padding:2px;font-size:12px;color:#adb5bd">⬇</button>
+            <button onClick="{{ s.onToggle }}" style="border:0;background:transparent;cursor:pointer;padding:2px;font-size:13px;opacity:{{ s.eyeOpacity }}">{{ s.eye }}</button>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- validation -->
+      <div style="border-top:1px solid #f1f3f5;padding:12px 14px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.04em;color:#adb5bd;margin-bottom:8px">검증</div>
+        <sc-if value="{{ hasWarnings }}" hint-placeholder-val="{{ true }}">
+          <sc-for list="{{ warnings }}" as="w" hint-placeholder-count="1">
+            <div style="display:flex;gap:7px;align-items:flex-start;font-size:12px;font-weight:600;letter-spacing:-0.02em;color:#f78000;padding:5px 0;line-height:1.4">
+              <span style="flex-shrink:0">⚠️</span><span>{{ w }}</span>
+            </div>
+          </sc-for>
+        </sc-if>
+        <sc-if value="{{ noWarnings }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:7px;align-items:center;font-size:12px;font-weight:600;letter-spacing:-0.02em;color:#27ab86">
+            <span>✓</span><span>필수 항목 이상 없음</span>
+          </div>
+        </sc-if>
+      </div>
+    </aside>
+
+    <!-- ===== CENTER : PREVIEW ===== -->
+    <main class="cap-scroll" style="flex:1;min-width:0;overflow:auto;background:#e9ecef;display:flex;justify-content:center;padding:32px 24px 64px">
+      <div style="width:{{ deviceWidth }}px;flex-shrink:0;transition:width .25s ease">
+
+        <!-- device chrome -->
+        <div style="{{ frameStyle }}">
+          <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ true }}">
+            <div style="height:34px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:11px;font-weight:700;color:#101418;flex-shrink:0">
+              <span>9:41</span><span style="letter-spacing:1px">● ● ●   ▮</span>
+            </div>
+          </sc-if>
+
+          <!-- CAPTURE ROOT -->
+          <div id="promo-capture" style="background:#fff">
+
+            <!-- 1. MAIN VISUAL -->
+            <sc-if value="{{ show.visual }}" hint-placeholder-val="{{ true }}">
+            <section id="sec-visual" style="order:{{ ord.visual }};position:relative;overflow:hidden;{{ heroBg }}">
+              <div style="position:absolute;top:22px;left:0;right:0;display:flex;justify-content:center;z-index:3">
+                <div style="display:inline-flex;align-items:center;gap:10px">
+                  <img src="assets/mrt_wordmark_white.png" alt="myrealtrip" style="height:17px;width:auto"/>
+                  <span style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700">×</span>
+                  {{ coLogoNode }}
+                </div>
+              </div>
+              {{ planeNode }}
+              <div style="position:relative;z-index:2;padding:{{ heroPad }};display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;min-height:{{ heroMinH }}px;justify-content:flex-end">
+                <div style="display:flex;gap:7px;align-items:center;justify-content:center">
+                  <span style="background:{{ accent }};color:#fff;font-size:12px;font-weight:700;letter-spacing:-0.02em;padding:4px 11px;border-radius:99px">{{ typeBadge }}</span>
+                  <span style="background:rgba(255,255,255,.92);color:#101418;font-size:12px;font-weight:700;letter-spacing:-0.02em;padding:4px 11px;border-radius:99px">{{ heroAirline }}</span>
+                </div>
+                <h1 contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ editName }}" style="margin:0;font-size:{{ heroTitleSize }}px;font-weight:800;line-height:1.18;letter-spacing:-0.03em;color:{{ heroFg }};text-shadow:{{ heroShadow }}">{{ heroTitle }}</h1>
+                <p contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ editSub }}" style="margin:0 auto;font-size:{{ heroSubSize }}px;font-weight:600;line-height:1.4;letter-spacing:-0.02em;color:{{ heroSubFg }};text-shadow:{{ heroShadow }};max-width:32em">{{ heroSubtitle }}</p>
+                <div style="align-self:center;display:flex;flex-direction:column;align-items:center;gap:9px;margin-top:6px">
+                  <sc-if value="{{ isLive }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:inline-flex;align-items:center;gap:7px;background:{{ accent }};color:#fff;padding:9px 15px;border-radius:12px;font-size:14px;font-weight:700;letter-spacing:-0.02em;white-space:nowrap">
+                      <span>🔴</span><span>라이브 {{ heroTiming }}</span>
+                    </div>
+                  </sc-if>
+                  <div style="background:rgba(16,20,24,.5);backdrop-filter:blur(4px);border-radius:14px;padding:14px 17px;display:flex;flex-direction:column;gap:9px;text-align:left">
+                    <div style="display:flex;gap:16px;align-items:baseline">
+                      <span style="flex-shrink:0;width:58px;font-size:13px;font-weight:700;color:rgba(255,255,255,.68);letter-spacing:-0.02em">판매 기간</span>
+                      <span contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ editSales }}" style="font-size:14.5px;font-weight:700;color:#fff;letter-spacing:-0.02em;white-space:nowrap">{{ salesPeriod }}</span>
+                    </div>
+                    <div style="display:flex;gap:16px;align-items:baseline">
+                      <span style="flex-shrink:0;width:58px;font-size:13px;font-weight:700;color:rgba(255,255,255,.68);letter-spacing:-0.02em">탑승 기간</span>
+                      <div>
+                        <span contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ editBoarding }}" style="font-size:14.5px;font-weight:700;color:#fff;letter-spacing:-0.02em;white-space:nowrap">{{ boardingPeriod }}</span>
+                        <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.6);margin-top:3px;letter-spacing:-0.02em">{{ boardingNote }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            </sc-if>
+
+            <!-- 2. SCHEDULE / PERIOD -->
+            <sc-if value="{{ show.schedule }}" hint-placeholder-val="{{ true }}">
+            <section id="sec-schedule" style="order:{{ ord.schedule }};padding:36px 22px;background:#fff;border-bottom:1px solid #f1f3f5">
+              <div style="text-align:center;margin-bottom:10px"><span style="display:inline-block;background:{{ accent }};color:#fff;font-size:12px;font-weight:800;letter-spacing:-0.01em;padding:5px 12px;border-radius:99px">{{ badge.schedule }}</span></div>
+              <h2 style="margin:0 0 16px;font-size:22px;font-weight:800;letter-spacing:-0.03em;text-align:center;line-height:1.3">{{ schedTitle }}</h2>
+              <div style="display:flex;align-items:center;gap:13px;padding:16px 18px;background:{{ accentSoft }};border-radius:14px">
+                <span style="font-size:26px">{{ schedIcon }}</span>
+                <div>
+                  <div style="font-size:17px;font-weight:800;letter-spacing:-0.03em;color:{{ accentDeep }}">{{ schedValue }}</div>
+                  <div style="font-size:13px;font-weight:600;color:#666d75;margin-top:2px;letter-spacing:-0.02em">{{ schedSub }}</div>
+                </div>
+              </div>
+
+              <!-- live-only benefits + notify CTA -->
+              <sc-if value="{{ isLive }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:16px;display:flex;flex-direction:column;gap:9px">
+                  <sc-for list="{{ liveBenefitItems }}" as="b" hint-placeholder-count="2">
+                    <div style="display:flex;gap:11px;align-items:flex-start;padding:13px 15px;border:1px solid #e9ecef;border-radius:12px">
+                      <span style="flex-shrink:0;width:24px;height:24px;border-radius:99px;background:{{ accent }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">{{ b.n }}</span>
+                      <div style="flex:1">
+                        <div contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ b.onT }}" style="font-size:14.5px;font-weight:700;letter-spacing:-0.02em;line-height:1.35">{{ b.t }}</div>
+                        <div contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ b.onD }}" style="font-size:12.5px;font-weight:600;color:#848c94;margin-top:2px;letter-spacing:-0.02em">{{ b.d }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <button style="margin-top:16px;width:100%;height:52px;border:0;border-radius:14px;background:{{ accent }};color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.02em;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px">🔔 라이브 사전 알림 받기</button>
+              </sc-if>
+            </section>
+            </sc-if>
+
+            <!-- 3. PRIZE (live only) -->
+            <sc-if value="{{ show.prize }}" hint-placeholder-val="{{ true }}">
+            <section id="sec-prize" style="order:{{ ord.prize }};padding:36px 22px;background:{{ accentSoft }}">
+              <div style="text-align:center;margin-bottom:10px"><span style="display:inline-block;background:{{ accent }};color:#fff;font-size:12px;font-weight:800;letter-spacing:-0.01em;padding:5px 12px;border-radius:99px">{{ badge.prize }}</span></div>
+              <h2 style="margin:0 0 16px;font-size:22px;font-weight:800;letter-spacing:-0.03em;text-align:center;line-height:1.3">{{ prizeTitle }}</h2>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ prizeItems }}" as="p" hint-placeholder-count="2">
+                  <div style="display:flex;gap:14px;align-items:center;padding:16px 17px;background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.05)">
+                    <span style="flex-shrink:0;width:46px;height:46px;border-radius:14px;background:{{ accentSoft }};display:flex;align-items:center;justify-content:center;font-size:24px">{{ p.icon }}</span>
+                    <div style="flex:1">
+                      <div contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ p.onT }}" style="font-size:15.5px;font-weight:800;letter-spacing:-0.03em;line-height:1.3">{{ p.t }}</div>
+                      <div contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ p.onD }}" style="font-size:13px;font-weight:600;color:#848c94;margin-top:3px;letter-spacing:-0.02em">{{ p.d }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+            </sc-if>
+
+            <!-- 4. PURCHASE BENEFITS -->
+            <sc-if value="{{ show.purchase }}" hint-placeholder-val="{{ true }}">
+            <section id="sec-purchase" style="order:{{ ord.purchase }};padding:36px 22px;background:#fff;border-bottom:1px solid #f1f3f5">
+              <div style="text-align:center;margin-bottom:10px"><span style="display:inline-block;background:{{ accent }};color:#fff;font-size:12px;font-weight:800;letter-spacing:-0.01em;padding:5px 12px;border-radius:99px">{{ badge.purchase }}</span></div>
+              <h2 style="margin:0 0 16px;font-size:22px;font-weight:800;letter-spacing:-0.03em;text-align:center;line-height:1.3">{{ purchaseTitle }}</h2>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ purchaseItems }}" as="b" hint-placeholder-count="2">
+                  <div style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px;background:#f8f9fa;border-radius:13px">
+                    <span style="flex-shrink:0;color:{{ accent }};font-size:18px;font-weight:800;line-height:1.3">✓</span>
+                    <div style="flex:1">
+                      <div contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ b.onT }}" style="font-size:15px;font-weight:700;letter-spacing:-0.02em;line-height:1.35">{{ b.t }}</div>
+                      <div contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ b.onD }}" style="font-size:12.5px;font-weight:600;color:#848c94;margin-top:2px;letter-spacing:-0.02em">{{ b.d }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+            </sc-if>
+
+            <!-- 5. HIGHLIGHT ROUTES -->
+            <sc-if value="{{ show.highlight }}" hint-placeholder-val="{{ true }}">
+            <section id="sec-highlight" style="order:{{ ord.highlight }};padding:36px 0 36px;background:#fff;border-bottom:1px solid #f1f3f5">
+              <div style="padding:0 22px">
+                <div style="text-align:center;margin-bottom:10px"><span style="display:inline-block;background:{{ accent }};color:#fff;font-size:12px;font-weight:800;letter-spacing:-0.01em;padding:5px 12px;border-radius:99px">{{ badge.highlight }}</span></div>
+                <h2 style="margin:0 0 16px;font-size:22px;font-weight:800;letter-spacing:-0.03em;text-align:center;line-height:1.3">{{ highlightTitle }}</h2>
+              </div>
+              <div class="cap-scroll" style="{{ highlightWrapStyle }}">
+                <sc-for list="{{ highlightItems }}" as="r" hint-placeholder-count="6">
+                  <div style="{{ r.cardStyle }}">
+                    <div style="height:112px;{{ r.imgStyle }}"></div>
+                    <div style="padding:13px 14px 16px">
+                      <div style="display:flex;align-items:center;gap:6px;font-size:15px;font-weight:800;letter-spacing:-0.03em;line-height:1.25">
+                        <span>{{ r.from }}</span>
+                        <span style="color:{{ accent }}">→</span>
+                        <span>{{ r.to }}</span>
+                      </div>
+                      <div style="font-size:12.5px;font-weight:500;color:#666d75;margin-top:6px;letter-spacing:-0.02em;line-height:1.45;text-wrap:pretty">{{ r.intro }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+            </sc-if>
+
+            <!-- 6. CTA -->
+            <sc-if value="{{ show.cta }}" hint-placeholder-val="{{ true }}">
+            <section id="sec-cta" style="order:{{ ord.cta }};padding:26px 22px;background:{{ accentDeep }}">
+              <div style="text-align:center">
+                <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,.72);letter-spacing:-0.02em;margin-bottom:14px">지금 바로 특가 노선을 확인하세요</div>
+                <button style="width:100%;height:56px;border:0;border-radius:14px;background:#fff;color:{{ accentDeep }};font-size:17px;font-weight:800;letter-spacing:-0.03em;cursor:pointer">
+                  <span contentEditable="true" suppressContentEditableWarning="{{ true }}" onBlur="{{ editCta }}">{{ ctaLabel }}</span> ›
+                </button>
+              </div>
+            </section>
+            </sc-if>
+
+            <!-- 7. ROUTE SECTIONS — one per (departure × region) -->
+            <sc-for list="{{ routeBlocks }}" as="b" hint-placeholder-count="3">
+              <section id="{{ b.id }}" style="order:{{ b.ord }};padding:32px 22px 36px;background:#fff;border-bottom:1px solid #f1f3f5;display:flex;flex-direction:column;gap:16px">
+                <div style="display:flex;border-bottom:1px solid #e9ecef">
+                  <sc-for list="{{ b.depTabs }}" as="t" hint-placeholder-count="2">
+                    <div style="{{ t.style }}">{{ t.label }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px">
+                  <sc-for list="{{ b.regChips }}" as="d" hint-placeholder-count="3">
+                    <div style="{{ d.style }}">{{ d.label }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:grid;grid-template-columns:{{ b.gridCols }};gap:12px">
+                  <sc-for list="{{ b.cards }}" as="c" hint-placeholder-count="3">
+                    <div style="{{ c.cardStyle }}">
+                      <span style="position:absolute;top:10px;right:14px;font-size:34px;font-weight:900;color:rgba(255,255,255,.16);letter-spacing:-0.05em">{{ c.phText }}</span>
+                      <div style="position:absolute;left:0;right:0;bottom:0;padding:14px 16px;display:flex;flex-direction:column;gap:3px">
+                        <div style="display:flex;align-items:center;gap:5px;color:#fff;font-size:17px;font-weight:800;letter-spacing:-0.03em;text-shadow:0 1px 8px rgba(0,0,0,.4)">{{ c.name }} <span style="opacity:.85">›</span></div>
+                        <div style="color:#ffc929;font-size:15px;font-weight:800;letter-spacing:-0.03em;text-shadow:0 1px 8px rgba(0,0,0,.45)">왕복 {{ c.price }}원~</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </section>
+            </sc-for>
+
+          </div><!-- /capture -->
+        </div><!-- /frame -->
+      </div>
+    </main>
+
+    <!-- ===== RIGHT : SETTINGS ===== -->
+    <aside class="cap-scroll" style="width:300px;flex-shrink:0;background:#fff;border-left:1px solid #e9ecef;overflow-y:auto;min-height:0">
+      <div style="padding:16px 18px 14px;border-bottom:1px solid #f1f3f5">
+        <div style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em;margin-bottom:8px">📄 구글 시트 불러오기</div>
+        <input value="{{ sheetUrl }}" onInput="{{ setSheetUrl }}" placeholder="구글 시트 공유 링크 붙여넣기" style="width:100%;height:38px;padding:0 12px;border:1px solid #dee2e6;border-radius:10px;font-size:12.5px;font-family:inherit;color:#101418;outline:none"/>
+        <button onClick="{{ loadSheet }}" style="width:100%;height:38px;margin-top:8px;border:0;border-radius:10px;background:#101418;color:#fff;font-size:13px;font-weight:700;letter-spacing:-0.02em;cursor:pointer">CSV 불러오기</button>
+        <sc-if value="{{ sheetStatus }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:11.5px;font-weight:600;color:#666d75;letter-spacing:-0.02em;margin-top:7px">{{ sheetStatus }}</div>
+        </sc-if>
+        <div style="font-size:11px;color:#adb5bd;font-weight:600;margin-top:7px;letter-spacing:-0.02em;line-height:1.5">시트를 <b>공유 → 링크가 있는 모든 사용자(뷰어)</b>로 바꾼 뒤 주소창 링크를 그대로 붙여넣으세요. CSV 주소로 자동 변환됩니다.</div>
+      </div>
+      <div style="padding:16px 18px 8px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.04em;color:#adb5bd">SETTINGS</div>
+        <div style="font-size:16px;font-weight:800;letter-spacing:-0.03em;margin-top:4px">{{ selLabel }}</div>
+      </div>
+
+      <!-- selected section quick edit -->
+      <div style="padding:6px 18px 18px;border-bottom:1px solid #f1f3f5">
+        <sc-if value="{{ selIsVisual }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <label style="display:block">
+              <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">프로모션 명</span>
+              <input value="{{ heroTitle }}" onInput="{{ editNameInput }}" style="{{ inputStyle }}"/>
+            </label>
+            <label style="display:block">
+              <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">부제</span>
+              <input value="{{ heroSubtitle }}" onInput="{{ editSubInput }}" style="{{ inputStyle }}"/>
+            </label>
+            <label style="display:block">
+              <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">항공사</span>
+              <input value="{{ heroAirline }}" onInput="{{ editAirlineInput }}" style="{{ inputStyle }}"/>
+            </label>
+            <label style="display:block">
+              <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">판매 기간</span>
+              <input value="{{ salesPeriod }}" onInput="{{ editSalesInput }}" style="{{ inputStyle }}"/>
+            </label>
+            <label style="display:block">
+              <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">탑승 기간</span>
+              <input value="{{ boardingPeriod }}" onInput="{{ editBoardingInput }}" style="{{ inputStyle }}"/>
+            </label>
+            <div>
+              <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">항공사 로고</span>
+              <label style="display:flex;height:40px;margin-top:6px;border:1px dashed #ced4da;border-radius:10px;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#666d75;cursor:pointer;letter-spacing:-0.02em">
+                {{ airlineLogoLabel }}
+                <input type="file" accept="image/*" onChange="{{ uploadAirlineLogo }}" style="display:none"/>
+              </label>
+              <div style="font-size:11px;color:#adb5bd;font-weight:600;margin-top:6px;letter-spacing:-0.02em;line-height:1.5">로고 미등록 시 항공사명이 co-brand 영역에 표시됩니다.</div>
+            </div>
+            <div>
+              <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">기체 이미지 (투명 PNG)</span>
+              <label style="display:flex;height:40px;margin-top:6px;border:1px dashed #ced4da;border-radius:10px;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#666d75;cursor:pointer;letter-spacing:-0.02em">
+                {{ planeLabel }}
+                <input type="file" accept="image/*" onChange="{{ uploadPlane }}" style="display:none"/>
+              </label>
+              <div style="font-size:11px;color:#adb5bd;font-weight:600;margin-top:6px;letter-spacing:-0.02em;line-height:1.5">배경(하늘) 위에 항공기가 올라갑니다. 배경이 없는 투명 PNG를 권장해요.</div>
+            </div>
+            <div>
+              <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">메인 이미지 (배경)</span>
+              <div style="display:flex;gap:8px;margin-top:6px">
+                <label style="flex:1;height:40px;border:1px dashed #ced4da;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#666d75;cursor:pointer;letter-spacing:-0.02em">
+                  이미지 업로드
+                  <input type="file" accept="image/*" onChange="{{ uploadHero }}" style="display:none"/>
+                </label>
+                <button onClick="{{ toggleImages }}" style="flex:1;height:40px;border:0;border-radius:10px;background:#f1f3f5;font-size:13px;font-weight:700;color:#101418;cursor:pointer;letter-spacing:-0.02em">{{ imgBtnLabel }}</button>
+              </div>
+              <button onClick="{{ openPicker }}" style="width:100%;height:40px;margin-top:8px;border:1px solid #dee2e6;border-radius:10px;background:#fff;font-size:13px;font-weight:700;color:#101418;cursor:pointer;letter-spacing:-0.02em">🔍 Unsplash에서 선택</button>
+              <div style="font-size:11px;color:#adb5bd;font-weight:600;margin-top:6px;letter-spacing:-0.02em;line-height:1.5">기본은 플레이스홀더입니다. Unsplash에서 선택하거나 자동 채우기·직접 업로드하세요.</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ selIsSchedule }}" hint-placeholder-val="{{ false }}">
+          <label style="display:block">
+            <span style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em">{{ schedDateLabel }}</span>
+            <input value="{{ schedValue }}" onInput="{{ editSchedInput }}" style="{{ inputStyle }}"/>
+          </label>
+        </sc-if>
+
+        <sc-if value="{{ selIsGeneric }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13px;font-weight:600;color:#666d75;letter-spacing:-0.02em;line-height:1.6;background:#f8f9fa;padding:13px 14px;border-radius:12px">
+            💡 이 섹션의 문구는 <b>미리보기에서 직접 클릭</b>해 수정할 수 있어요. 순서와 노출은 왼쪽 목록에서 조절합니다.
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- theme -->
+      <div style="padding:16px 18px;border-bottom:1px solid #f1f3f5">
+        <div style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em;margin-bottom:11px">스타일 테마</div>
+        <div style="display:flex;gap:10px">
+          <sc-for list="{{ themeSwatches }}" as="t" hint-placeholder-count="5">
+            <button onClick="{{ t.onClick }}" title="{{ t.name }}" style="{{ t.style }}"></button>
+          </sc-for>
+        </div>
+        <div style="font-size:11px;color:#adb5bd;font-weight:600;margin-top:9px;letter-spacing:-0.02em">디자인 시스템 컬러 스케일 기반</div>
+      </div>
+
+      <!-- summary -->
+      <div style="padding:16px 18px">
+        <div style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em;margin-bottom:10px">생성 요약</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;letter-spacing:-0.02em"><span style="color:#848c94;font-weight:600">타입</span><span style="font-weight:700">{{ typeBadge }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;letter-spacing:-0.02em"><span style="color:#848c94;font-weight:600">노출 섹션</span><span style="font-weight:700">{{ visibleCount }}개</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;letter-spacing:-0.02em"><span style="color:#848c94;font-weight:600">강조 노선</span><span style="font-weight:700">{{ highlightCount }}개</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;letter-spacing:-0.02em"><span style="color:#848c94;font-weight:600">전체 노선</span><span style="font-weight:700">{{ totalRouteCount }}개</span></div>
+        </div>
+      </div>
+
+      <!-- CMS export -->
+      <div style="padding:16px 18px;border-top:1px solid #f1f3f5">
+        <div style="font-size:12px;font-weight:700;color:#666d75;letter-spacing:-0.02em;margin-bottom:8px">CMS 이미지 에셋 내보내기</div>
+        <div style="font-size:11.5px;color:#848c94;font-weight:600;letter-spacing:-0.02em;line-height:1.6;margin-bottom:12px">각 섹션을 개별 이미지로 저장합니다. CMS에 <b>순서대로 업로드</b>한 뒤 앵커링을 연결하세요.</div>
+        <button onClick="{{ exportAll }}" style="width:100%;height:44px;border:0;border-radius:12px;background:#101418;color:#fff;font-size:14px;font-weight:700;letter-spacing:-0.02em;cursor:pointer;margin-bottom:8px">⬇ 현재 화면 전체 섹션 저장 · {{ exportDevLabel }}</button>
+        <div style="font-size:11px;color:#adb5bd;font-weight:600;letter-spacing:-0.02em;line-height:1.6">
+          파일명 <b style="color:#666d75">01_hero_{{ exportDevLabel }}.jpg</b> 순으로 저장됩니다. PC·모바일 뷰를 각각 전환해 두 세트를 내려받으세요. 개별 섹션은 왼쪽 목록의 ⬇ 로 저장할 수 있어요.
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- UNSPLASH PICKER MODAL -->
+  <sc-if value="{{ pickerOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closePicker }}" style="position:fixed;inset:0;background:rgba(16,20,24,.55);z-index:30000;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stopProp }}" style="width:100%;max-width:560px;max-height:82vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:17px;font-weight:800;letter-spacing:-0.03em">Unsplash 이미지 선택</div>
+        <button onClick="{{ closePicker }}" style="border:0;background:#f1f3f5;width:32px;height:32px;border-radius:99px;cursor:pointer;font-size:15px">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input value="{{ unsplashKey }}" onInput="{{ setKey }}" placeholder="Unsplash Access Key (developers.unsplash.com 무료 발급)" style="height:38px;padding:0 12px;border:1px solid #dee2e6;border-radius:10px;font-size:12.5px;font-family:inherit;color:#101418;outline:none"/>
+        <div style="display:flex;gap:8px">
+          <input value="{{ searchQuery }}" onInput="{{ setQuery }}" onKeyDown="{{ onSearchKey }}" placeholder="도시·테마 검색 (예: tokyo, beach, airplane)" style="flex:1;height:40px;padding:0 12px;border:1px solid #dee2e6;border-radius:10px;font-size:13px;font-family:inherit;color:#101418;outline:none"/>
+          <button onClick="{{ doSearch }}" style="height:40px;padding:0 18px;border:0;border-radius:10px;background:#2b96ed;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">🔍 검색</button>
+        </div>
+        <sc-if value="{{ searchStatus }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;font-weight:600;color:#848c94;letter-spacing:-0.02em">{{ searchStatus }}</div>
+        </sc-if>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ pickerCats }}" as="c" hint-placeholder-count="4">
+          <button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button>
+        </sc-for>
+      </div>
+      {{ resultGrid }}
+      <div style="display:flex;gap:8px;align-items:center;border-top:1px solid #f1f3f5;padding-top:14px">
+        <input value="{{ pickerUrl }}" onInput="{{ setPickerUrl }}" placeholder="또는 이미지 URL 붙여넣기" style="flex:1;height:40px;padding:0 12px;border:1px solid #dee2e6;border-radius:10px;font-size:13px;font-family:inherit;color:#101418;outline:none"/>
+        <button onClick="{{ applyUrl }}" style="height:40px;padding:0 16px;border:0;border-radius:10px;background:#101418;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">적용</button>
+      </div>
+      <div style="font-size:11px;color:#adb5bd;font-weight:600;letter-spacing:-0.02em;line-height:1.5">라이브 검색은 API 키가 필요해, 큐레이션된 여행 이미지 중에서 선택합니다. 특정 사진은 URL을 붙여넣어 사용하세요. 선택 시 메인 비주얼 배경으로 적용됩니다.</div>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    promoType: 'live',
+    device: 'mobile',
+    theme: 'blue',
+    selectedKey: 'visual',
+    order: ['visual','schedule','prize','purchase','highlight','cta'],
+    hidden: {},
+    imagesLoaded: false,
+    selectedDeparture: '인천 출발',
+    selectedRegion: '일본',
+    ov: {},      // text overrides
+    heroImage: null,
+    airlineLogo: null,
+    planeImage: null,
+    pickerOpen: false,
+    pickerCat: '전체',
+    pickerUrl: '',
+    unsplashKey: '',
+    searchQuery: '',
+    searchResults: [],
+    searching: false,
+    searchError: '',
+    importedData: null,
+    sheetUrl: '',
+    sheetStatus: '',
+  };
+
+  AIRPORTS = { ICN:'인천', GMP:'김포', PUS:'부산', CJU:'제주', CJJ:'청주',
+    FUK:'후쿠오카', KIX:'오사카', NRT:'도쿄', HND:'도쿄', CEB:'세부',
+    BKK:'방콕', DAD:'다낭', TPE:'타이베이', HKG:'홍콩', OKA:'오키나와',
+    CTS:'삿포로', KMJ:'구마모토', HSG:'사가' };
+
+  EN = { visual:'hero', schedule:'schedule', prize:'prize', purchase:'benefit', highlight:'pick_routes', cta:'cta' };
+  CITY_IMG = { NRT:0, HND:0, HKG:0, KIX:1, FUK:1, TPE:1, CEB:2, OKA:2, DAD:3, BKK:4, CTS:5, KMJ:1, HSG:2 };
+  DEST_INTRO = {
+    FUK:'온천과 라멘, 짧은 일정에도 알차게 즐길 수 있어요',
+    KIX:'먹거리와 볼거리가 가득해 처음 가도 실패 없어요',
+    NRT:'쇼핑부터 감성 카페까지 하루가 짧게 느껴져요',
+    HND:'쇼핑부터 감성 카페까지 하루가 짧게 느껴져요',
+    CEB:'에메랄드빛 바다에서 온전히 쉬어갈 수 있어요',
+    BKK:'이국적인 사원과 야시장을 밤늦게까지 즐겨요',
+    DAD:'해변과 미케 비치, 여유로운 휴양을 즐겨요',
+    TPE:'야시장 먹방과 근교 여행을 함께 즐겨요',
+    HKG:'화려한 야경과 딤섬을 마음껏 만나요',
+  };
+
+  DATA = {
+    promoName:'진에어 여름 특가 LIVE',
+    subtitle:'선선한 바람 부는 여름밤, 진에어와 어디로든 떠나요',
+    airline:'진에어',
+    liveTime:'2026.07.24 (목) 20:00 – 21:00',
+    period:'2026.07.24 – 2026.08.07',
+    salesPeriod:'2026.07.21 – 2026.08.19',
+    boardingPeriod:'2026.07.21 – 2026.12.31',
+    boardingNote:'일부 일자 특가 제외',
+    liveBenefits:[
+      {t:'라이브 시청 중 사용 가능한 15% 할인 쿠폰', d:'방송 종료 후 24시간 내 사용'},
+      {t:'왕복 유류할증료 포함가로 예약', d:'예약 화면에서 노선별 확인'},
+    ],
+    prizes:[
+      {t:'진에어 왕복 항공권 (2인)', d:'추첨 5팀', icon:'✈️'},
+      {t:'스타벅스 e기프티콘 1만원권', d:'추첨 50명', icon:'🎁'},
+    ],
+    purchaseBenefits:[
+      {t:'카드사 무이자 3개월 할부', d:'주요 카드사 대상'},
+      {t:'위탁 수하물 15kg 포함', d:'일부 노선 한정'},
+    ],
+    highlight:[
+      {from:'ICN',to:'FUK'},{from:'ICN',to:'KIX'},{from:'ICN',to:'NRT'},
+      {from:'PUS',to:'NRT'},{from:'ICN',to:'CEB'},{from:'ICN',to:'BKK'},
+    ],
+    departures:[
+      {name:'인천 출발', regions:[
+        {name:'일본', cities:[
+          {code:'NRT', name:'도쿄(나리타)', price:'263,000'},
+          {code:'KIX', name:'오사카', price:'214,000'},
+          {code:'FUK', name:'후쿠오카', price:'187,000'},
+          {code:'CTS', name:'삿포로', price:'453,000'},
+          {code:'OKA', name:'오키나와', price:'253,000'},
+          {code:'KMJ', name:'구마모토', price:'199,900'},
+        ]},
+        {name:'동남아시아', cities:[
+          {code:'CEB', name:'세부', price:'289,000'},
+          {code:'BKK', name:'방콕', price:'312,000'},
+          {code:'DAD', name:'다낭', price:'245,000'},
+        ]},
+        {name:'중화권', cities:[
+          {code:'TPE', name:'타이베이', price:'198,000'},
+          {code:'HKG', name:'홍콩', price:'276,000'},
+        ]},
+      ]},
+      {name:'부산 출발', regions:[
+        {name:'일본', cities:[
+          {code:'NRT', name:'도쿄(나리타)', price:'251,000'},
+          {code:'KIX', name:'오사카', price:'208,000'},
+        ]},
+        {name:'동남아시아', cities:[
+          {code:'BKK', name:'방콕', price:'305,000'},
+          {code:'DAD', name:'다낭', price:'239,000'},
+        ]},
+      ]},
+    ],
+    ctaLabel:'진에어 노선 보러 가기',
+  };
+
+  UNSPLASH = [
+    'https://images.unsplash.com/photo-1503899036084-c55cdd92da26',
+    'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf',
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
+    'https://images.unsplash.com/photo-1528360983277-13d401cdc186',
+    'https://images.unsplash.com/photo-1506929562872-bb421503ef21',
+    'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e',
+  ];
+  HERO_IMG = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05';
+  UNSPLASH_LIB = [
+    {u:'https://images.unsplash.com/photo-1436491865332-7a61a109cc05', c:'하늘'},
+    {u:'https://images.unsplash.com/photo-1474302770737-173ee21bab63', c:'하늘'},
+    {u:'https://images.unsplash.com/photo-1503899036084-c55cdd92da26', c:'도시'},
+    {u:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf', c:'도시'},
+    {u:'https://images.unsplash.com/photo-1519501025264-65ba15a82390', c:'도시'},
+    {u:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', c:'해변'},
+    {u:'https://images.unsplash.com/photo-1528360983277-13d401cdc186', c:'해변'},
+    {u:'https://images.unsplash.com/photo-1506929562872-bb421503ef21', c:'해변'},
+    {u:'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e', c:'자연'},
+    {u:'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05', c:'자연'},
+    {u:'https://images.unsplash.com/photo-1502602898657-3e91760cbb34', c:'유럽'},
+    {u:'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9', c:'유럽'},
+  ];
+
+  THEMES = {
+    blue:   {name:'브랜드 블루', accent:'#2b96ed', soft:'#e7f4fd', deep:'#01457d'},
+    red:    {name:'딜 레드',   accent:'#ec4937', soft:'#fbf1ef', deep:'#8d2115'},
+    green:  {name:'그린',     accent:'#27ab86', soft:'#e6f8f3', deep:'#0a4534'},
+    purple: {name:'퍼플',     accent:'#8238fa', soft:'#f6f0ff', deep:'#29085e'},
+    dark:   {name:'다크',     accent:'#101418', soft:'#f1f3f5', deep:'#101418'},
+  };
+
+  img(u){ return u + '?auto=format&fit=crop&w=900&q=60'; }
+  set(k,v){ this.setState({[k]:v}); }
+  ovGet(k, def){ return (this.state.ov[k] != null && this.state.ov[k] !== '') ? this.state.ov[k] : def; }
+  setOv(k,v){ this.setState(s => ({ov:{...s.ov, [k]:v}})); }
+
+  constructor(props){
+    super(props);
+    this._baseEN={...this.EN};
+    const rk=this.regenRoutes(this.DATA.departures);
+    this.state={...this.state, order:[...this.state.order, ...rk]};
+  }
+
+  regenRoutes(departures){
+    const rk=[], meta={}, en={...this._baseEN};
+    (departures||[]).forEach((d,i)=>d.regions.forEach((r,j)=>{
+      const k='r_'+i+'_'+j; rk.push(k);
+      meta[k]={label:d.name+' · '+r.name, depIdx:i, regIdx:j};
+      en[k]='routes_'+(i+1)+'_'+(j+1);
+    }));
+    this.routeKeys=rk; this.routeMeta=meta; this.EN=en; return rk;
+  }
+
+  applicableKeys(){
+    const base = ['visual','schedule','prize','purchase','highlight','cta'];
+    const all = [...base, ...(this.routeKeys||[])];
+    return this.state.promoType==='live' ? all : all.filter(k=>k!=='prize');
+  }
+
+  reorder(from, to){
+    const o=[...this.state.order];
+    const fi=o.indexOf(from), ti=o.indexOf(to);
+    if(fi<0||ti<0||fi===ti) return;
+    o.splice(fi,1); o.splice(ti,0,from);
+    this.setState({order:o});
+  }
+
+  toggleImages(){
+    const on=!this.state.imagesLoaded;
+    this.setState({imagesLoaded:on, heroImage: on ? this.img(this.HERO_IMG) : null});
+  }
+
+  uploadHero(e){
+    const f=e.target.files && e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>this.setState({heroImage:r.result});
+    r.readAsDataURL(f);
+  }
+
+  uploadAirlineLogo(e){
+    const f=e.target.files && e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>this.setState({airlineLogo:r.result});
+    r.readAsDataURL(f);
+  }
+
+  uploadPlane(e){
+    const f=e.target.files && e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>this.setState({planeImage:r.result});
+    r.readAsDataURL(f);
+  }
+
+  pickImage(u){ this.setState({heroImage:this.img(u), imagesLoaded:true, pickerOpen:false}); }
+  pickSearch(u){ this.setState({heroImage:u, imagesLoaded:true, pickerOpen:false}); }
+  applyUrl(){ const u=(this.state.pickerUrl||'').trim(); if(u) this.setState({heroImage:u, imagesLoaded:true, pickerOpen:false}); }
+
+  componentDidMount(){ try{ const k=localStorage.getItem('mrt_unsplash_key'); if(k) this.setState({unsplashKey:k}); }catch(e){} }
+
+  async doSearch(){
+    const key=(this.state.unsplashKey||'').trim(), q=(this.state.searchQuery||'').trim();
+    if(!key){ this.setState({searchError:'Unsplash Access Key를 입력해주세요'}); return; }
+    if(!q){ return; }
+    this.setState({searching:true, searchError:''});
+    try{
+      const r=await fetch('https://api.unsplash.com/search/photos?per_page=12&content_filter=high&query='+encodeURIComponent(q)+'&client_id='+encodeURIComponent(key));
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const j=await r.json();
+      const items=(j.results||[]).map(p=>({thumb:p.urls.small, full:p.urls.regular}));
+      try{ localStorage.setItem('mrt_unsplash_key', key); }catch(e){}
+      this.setState({searchResults:items, searching:false, searchError: items.length?'':'검색 결과가 없어요'});
+    }catch(e){ this.setState({searching:false, searchError:'검색 실패 — Access Key를 확인하거나 잠시 후 다시 시도하세요'}); }
+  }
+
+  normalizeSheetUrl(u){
+    if(/output=csv|tqx=out:csv/.test(u)) return u;
+    const idm=u.match(/\/spreadsheets\/d\/([\w-]+)/); if(!idm) return u;
+    const gidm=u.match(/[?#&]gid=(\d+)/); const gid=gidm?gidm[1]:'0';
+    return 'https://docs.google.com/spreadsheets/d/'+idm[1]+'/gviz/tq?tqx=out:csv&gid='+gid;
+  }
+  csvRows(text){
+    const rows=[]; let row=[], cur='', q=false;
+    for(let i=0;i<text.length;i++){ const c=text[i];
+      if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+      else { if(c==='"') q=true; else if(c===','){ row.push(cur); cur=''; }
+        else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+        else if(c==='\r'){} else cur+=c; }
+    }
+    row.push(cur); rows.push(row); return rows;
+  }
+  col(o,subs){ for(const k in o){ if(subs.some(s=>k.includes(s))) return (o[k]||'').trim(); } return ''; }
+
+  parseSheet(text){
+    const rows=this.csvRows(text).map(r=>r.map(c=>(c||'').trim()));
+    const isField=c=>/^\[.*\]$/.test(c);
+    const strip=s=>s.replace(/^\[|\]$/g,'').trim();
+    let sec='', headers=null; const kv={}, tables={};
+    rows.forEach(cells=>{
+      if(!cells.some(c=>c!=='')) return;
+      if((cells[0]||'').charAt(0)==='■'){ sec=cells[0].replace(/^■\s*/,'').trim(); headers=null; return; }
+      const brackets=cells.filter(isField);
+      if(brackets.length>=2){ headers=cells.map(c=>isField(c)?strip(c):''); return; }
+      if(brackets.length===1){ const li=cells.findIndex(isField); const val=cells.slice(li+1).find(c=>c!=='')||''; (kv[sec]=kv[sec]||{})[strip(cells[li])]=val; return; }
+      if(headers){ const obj={}; headers.forEach((h,i)=>{ if(h) obj[h]=cells[i]||''; }); (tables[sec]=tables[sec]||[]).push(obj); }
+    });
+    return this.buildData(kv, tables);
+  }
+
+  buildData(kv, tables){
+    const D=JSON.parse(JSON.stringify(this.DATA));
+    const proj = kv['프로젝트 정보'] || kv['프로젝트정보'] || {};
+    const g=(o,subs)=>{ for(const k in o){ if(subs.some(s=>k.includes(s))) return (o[k]||'').trim(); } return ''; };
+    const set=(v,f)=>{ if(v) D[f]=v; };
+    set(g(proj,['프로모션 명','프로모션명','제목']),'promoName');
+    set(g(proj,['부제','서브']),'subtitle');
+    set(g(proj,['항공사']),'airline');
+    set(g(proj,['라이브 일시','라이브 시간']),'liveTime');
+    set(g(proj,['판매']),'salesPeriod');
+    set(g(proj,['탑승']),'boardingPeriod');
+    set(g(proj,['프로모션 기간']),'period');
+    const pt=g(proj,['타입','유형']); if(pt) D.promoType=/기획/.test(pt)?'plan':'live';
+    const T=k=>tables[k]||[];
+    const hl=T('강조 노선').concat(T('강조노선'));
+    if(hl.length){ const arr=hl.map(o=>({from:this.col(o,['출발']), to:this.col(o,['도착'])})).filter(x=>x.from&&x.to); if(arr.length) D.highlight=arr; }
+    const lb=T('라이브 혜택'); if(lb.length) D.liveBenefits=lb.map(o=>({t:this.col(o,['혜택','내용','제목']), d:this.col(o,['상세','설명','비고'])}));
+    const pz=T('라이브 경품'); if(pz.length) D.prizes=pz.map(o=>({icon:'🎁',t:this.col(o,['경품','내용','제목']), d:this.col(o,['상세','설명','추첨','당첨','비고'])}));
+    const pb=T('구매 혜택'); if(pb.length) D.purchaseBenefits=pb.map(o=>({t:this.col(o,['혜택','내용','제목']), d:this.col(o,['상세','설명','비고'])}));
+    const ar=T('전체 노선').concat(T('전체노선'));
+    if(ar.length){
+      const byDep={};
+      ar.forEach(o=>{ const dep=this.col(o,['출발지','출발']); const reg=this.col(o,['권역','지역','대륙'])||'기타'; const name=this.col(o,['도시','목적지','노선']); const code=this.col(o,['공항','코드']); const price=this.col(o,['왕복','가격','운임']).replace(/[^0-9,]/g,'');
+        if(!dep||!name) return;
+        byDep[dep]=byDep[dep]||{}; byDep[dep][reg]=byDep[dep][reg]||[]; byDep[dep][reg].push({code:code||'', name, price:price||''}); });
+      const departures=Object.keys(byDep).map(dep=>({name:/출발\s*$/.test(dep)?dep:dep+' 출발', regions:Object.keys(byDep[dep]).map(reg=>({name:reg, cities:byDep[dep][reg]}))}));
+      if(departures.length) D.departures=departures;
+    }
+    return D;
+  }
+
+  async loadSheet(){
+    let url=(this.state.sheetUrl||'').trim();
+    if(!url){ this.setState({sheetStatus:'URL을 입력해주세요'}); return; }
+    url=this.normalizeSheetUrl(url);
+    this.setState({sheetStatus:'불러오는 중…'});
+    try{
+      const r=await fetch(url); if(!r.ok) throw new Error('HTTP '+r.status);
+      const text=await r.text();
+      if(/<html/i.test(text)) throw new Error('not-csv');
+      const data=this.parseSheet(text);
+      const rk=this.regenRoutes(data.departures);
+      this.setState({ importedData:data, ov:{}, hidden:{}, selectedKey:'visual',
+        promoType:data.promoType||this.state.promoType,
+        order:['visual','schedule','prize','purchase','highlight','cta',...rk],
+        sheetStatus:'불러오기 완료 ✓' });
+    }catch(e){ this.setState({sheetStatus:'실패 — 시트를 "링크가 있는 모든 사용자(뷰어)"로 공개했는지 확인해주세요'}); }
+  }
+
+  saveJpeg(){
+    const node=document.getElementById('promo-capture');
+    if(!node || !window.html2canvas){ alert('저장 준비 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+    window.html2canvas(node,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false}).then(canvas=>{
+      const a=document.createElement('a');
+      a.download='promotion_'+this.state.promoType+'.jpg';
+      a.href=canvas.toDataURL('image/jpeg',0.95);
+      a.click();
+    }).catch(()=>alert('이미지 저장 중 문제가 발생했어요. 외부 이미지가 포함된 경우 저장이 제한될 수 있습니다.'));
+  }
+
+  cityImg(code){ return this.state.imagesLoaded ? this.img(this.UNSPLASH[this.CITY_IMG[code] ?? 0]) : null; }
+
+  orderedVisibleKeys(){
+    const app=this.applicableKeys();
+    return this.state.order.filter(k=>app.includes(k) && !this.state.hidden[k]);
+  }
+
+  captureSection(key, idx, dev){
+    const node=document.getElementById('sec-'+key);
+    if(!node || !window.html2canvas) return Promise.resolve();
+    return window.html2canvas(node,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false}).then(canvas=>{
+      const nn=String(idx).padStart(2,'0');
+      const a=document.createElement('a');
+      a.download=nn+'_'+(this.EN[key]||key)+'_'+dev+'.jpg';
+      a.href=canvas.toDataURL('image/jpeg',0.95); a.click();
+    });
+  }
+
+  exportSection(key){
+    if(!window.html2canvas){ alert('저장 준비 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+    const keys=this.orderedVisibleKeys(); const idx=keys.indexOf(key);
+    const dev=this.state.device==='mobile'?'MO':'PC';
+    this.captureSection(key, idx>=0?idx+1:1, dev);
+  }
+
+  async exportAll(){
+    if(!window.html2canvas){ alert('저장 준비 중입니다. 잠시 후 다시 시도해주세요.'); return; }
+    const keys=this.orderedVisibleKeys();
+    const dev=this.state.device==='mobile'?'MO':'PC';
+    for(let i=0;i<keys.length;i++){
+      await this.captureSection(keys[i], i+1, dev);
+      await new Promise(r=>setTimeout(r,400));
+    }
+  }
+
+  renderVals(){
+    const S=this.state, D=this.state.importedData||this.DATA, T=this.THEMES[S.theme];
+    const isLive = S.promoType==='live';
+    const isMobile = S.device==='mobile';
+    const app = this.applicableKeys();
+    const cityOf = c => this.AIRPORTS[c] || c;
+
+    // section meta
+    const META = {
+      visual:{label:'메인 비주얼', generic:false},
+      schedule:{label: isLive?'라이브 일정':'프로모션 기간', generic:false},
+      prize:{label:'라이브 경품', generic:true},
+      purchase:{label:'구매 혜택', generic:true},
+      highlight:{label:'강조 노선', generic:true},
+      cta:{label:'하단 CTA', generic:true},
+    };
+
+    const ord={}, show={};
+    S.order.forEach((k,i)=>{ ord[k]=i; });
+    app.forEach(k=>{ show[k] = !S.hidden[k]; });
+    const badgeKeys=['schedule','prize','purchase','highlight'];
+    const badge={};
+    S.order.filter(k=>badgeKeys.includes(k)&&app.includes(k)&&!S.hidden[k]).forEach((k,i)=>{ badge[k]='HIGHLIGHT '+(i+1); });
+
+    // LEFT list
+    const tabActive='background:#fff;color:#101418;box-shadow:0 1px 2px rgba(0,0,0,.08)';
+    const tabBase='height:32px;border:0;border-radius:99px;font-size:13px;font-weight:700;letter-spacing:-0.02em;cursor:pointer;white-space:nowrap;';
+    const sectionList = S.order.filter(k=>app.includes(k)).map((k,idx)=>{
+      const sel = S.selectedKey===k;
+      const hiddenK = !!S.hidden[k];
+      return {
+        key:k, label:(META[k]?META[k].label:(this.routeMeta[k]?this.routeMeta[k].label:k)), step:idx+1,
+        draggable:'true',
+        onDragStart:()=>{ this._drag=k; },
+        onDrop:(e)=>{ e.preventDefault(); this.reorder(this._drag,k); },
+        onSelect:()=>this.set('selectedKey',k),
+        onToggle:(e)=>{ e.stopPropagation(); this.setState(s=>({hidden:{...s.hidden,[k]:!s.hidden[k]}})); },
+        onExport:(e)=>{ e.stopPropagation(); this.exportSection(k); },
+        eye: hiddenK?'🚫':'👁',
+        eyeOpacity: hiddenK?'1':'0.55',
+        labelColor: hiddenK?'#adb5bd':'#101418',
+        dotBg: sel?T.accent:T.soft, dotFg: sel?'#fff':T.deep,
+        rowStyle:'display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;cursor:pointer;margin-bottom:3px;'+(sel?('background:'+T.soft):'background:transparent')+(hiddenK?';opacity:.6':''),
+      };
+    });
+
+    // warnings (필수 항목 누락 · 날짜 오류)
+    const warnings=[];
+    if(!this.ovGet('name',D.promoName)) warnings.push('프로모션 명이 비어 있습니다.');
+    if(!D.airline) warnings.push('항공사 정보가 없습니다.');
+    const dateStr = isLive ? this.ovGet('sched',D.liveTime) : this.ovGet('sched',D.period);
+    if(!/\d{4}[.\-/]\s?\d{1,2}[.\-/]\s?\d{1,2}/.test(dateStr)) warnings.push('날짜 형식을 확인해주세요 (YYYY.MM.DD).');
+
+    // hero
+    const heroImage = S.heroImage;
+    const heroBg = heroImage
+      ? "background:linear-gradient(180deg,rgba(16,20,24,.05) 0%,rgba(16,20,24,.72) 100%),url('"+heroImage+"') center/cover"
+      : "background:linear-gradient(150deg,"+T.accent+" 0%,"+T.deep+" 100%)";
+
+    // highlight cards
+    const highlightItems = D.highlight.map((r,i)=>{
+      const im = S.imagesLoaded ? this.img(this.UNSPLASH[i%this.UNSPLASH.length]) : null;
+      return {
+        from:cityOf(r.from), to:cityOf(r.to), codes:r.from+' → '+r.to,
+        intro: this.DEST_INTRO[r.to] || (cityOf(r.to)+' 여행을 진에어와 함께 떠나요'),
+        cardStyle: 'background:#fff;border:1px solid #e9ecef;border-radius:16px;overflow:hidden',
+        imgStyle: im
+          ? "background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.15)),url('"+im+"') center/cover"
+          : 'background:linear-gradient(135deg,'+T.accent+'22,'+T.deep+'22);display:flex;align-items:center;justify-content:center',
+      };
+    });
+    const highlightWrapStyle = isMobile
+      ? 'display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 22px'
+      : 'display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:0 22px';
+
+    // all routes — one independent section per (departure × region)
+    const depTabStyle=(active)=>'flex:1;height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;letter-spacing:-0.02em;color:'+(active?'#101418':'#adb5bd')+';border-bottom:2px solid '+(active?T.accent:'transparent');
+    const chipStyle=(active)=>'flex:0 0 auto;height:36px;display:flex;align-items:center;padding:0 16px;border-radius:99px;background:'+(active?'#101418':'#f1f3f5')+';color:'+(active?'#fff':'#495056')+';font-size:13px;font-weight:700;letter-spacing:-0.02em;white-space:nowrap';
+    const mkCard = (c, wide)=>{ const im=this.cityImg(c.code);
+      const bg = im ? "background:linear-gradient(180deg,rgba(0,0,0,.05) 40%,rgba(0,0,0,.62)),url('"+im+"') center/cover"
+                    : "background:linear-gradient(150deg,"+T.accent+","+T.deep+")";
+      return { name:c.name, price:c.price, phText: im?'':c.name,
+        cardStyle:'position:relative;border-radius:16px;overflow:hidden;'+(wide?'aspect-ratio:16/6.5':'aspect-ratio:1/1')+';'+bg+';box-shadow:0 1px 2px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.06)' }; };
+    const routeBlocks = this.orderedVisibleKeys().filter(k=>k.charAt(0)==='r').map(k=>{
+      const m=this.routeMeta[k], dep=D.departures[m.depIdx], reg=dep.regions[m.regIdx];
+      const wide=reg.cities.length<=3;
+      return { id:'sec-'+k, ord: ord[k],
+        depTabs: D.departures.map((dd,i)=>({ label:dd.name, style:depTabStyle(i===m.depIdx) })),
+        regChips: dep.regions.map((rr,j)=>({ label:rr.name, style:chipStyle(j===m.regIdx) })),
+        gridCols: wide?'1fr':'1fr 1fr',
+        cards: reg.cities.map(c=>mkCard(c,wide)) };
+    });
+    const totalRouteCount = D.departures.reduce((a,d)=>a+d.regions.reduce((x,r)=>x+r.cities.length,0),0);
+
+    // editable list builders
+    const liveBenefitItems = D.liveBenefits.map((b,i)=>({
+      n:i+1, t:this.ovGet('lb'+i+'t',b.t), d:this.ovGet('lb'+i+'d',b.d),
+      onT:e=>this.setOv('lb'+i+'t',e.currentTarget.innerText),
+      onD:e=>this.setOv('lb'+i+'d',e.currentTarget.innerText),
+    }));
+    const prizeItems = D.prizes.map((p,i)=>({
+      icon:p.icon, t:this.ovGet('pz'+i+'t',p.t), d:this.ovGet('pz'+i+'d',p.d),
+      onT:e=>this.setOv('pz'+i+'t',e.currentTarget.innerText),
+      onD:e=>this.setOv('pz'+i+'d',e.currentTarget.innerText),
+    }));
+    const purchaseItems = D.purchaseBenefits.map((b,i)=>({
+      t:this.ovGet('pb'+i+'t',b.t), d:this.ovGet('pb'+i+'d',b.d),
+      onT:e=>this.setOv('pb'+i+'t',e.currentTarget.innerText),
+      onD:e=>this.setOv('pb'+i+'d',e.currentTarget.innerText),
+    }));
+
+    // theme swatches
+    const themeSwatches = Object.keys(this.THEMES).map(key=>{
+      const t=this.THEMES[key], on=S.theme===key;
+      return { name:t.name, onClick:()=>this.set('theme',key),
+        style:'width:36px;height:36px;border-radius:99px;cursor:pointer;background:'+t.accent+';border:3px solid '+(on?'#fff':'transparent')+';box-shadow:0 0 0 '+(on?'2px '+t.accent:'1px #e9ecef') };
+    });
+
+    const selKey=S.selectedKey;
+    const inputStyle='width:100%;height:40px;margin-top:5px;padding:0 12px;border:1px solid #dee2e6;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;color:#101418;letter-spacing:-0.02em;outline:none';
+
+    return {
+      // top tabs
+      setLive:()=>this.setState({promoType:'live', selectedKey:'visual'}),
+      setPlan:()=>this.setState({promoType:'plan', selectedKey: S.selectedKey==='prize'?'visual':S.selectedKey}),
+      setMobile:()=>this.set('device','mobile'),
+      setPc:()=>this.set('device','pc'),
+      liveTabStyle:tabBase+'padding:0 15px;'+(isLive?tabActive:'background:transparent;color:#848c94'),
+      planTabStyle:tabBase+'padding:0 15px;'+(!isLive?tabActive:'background:transparent;color:#848c94'),
+      mobTabStyle:tabBase+'padding:0 12px;'+(isMobile?tabActive:'background:transparent;color:#848c94'),
+      pcTabStyle:tabBase+'padding:0 12px;'+(!isMobile?tabActive:'background:transparent;color:#848c94'),
+      imgBtnLabel: S.imagesLoaded?'플레이스홀더로':'🖼 이미지 자동 채우기',
+      toggleImages:()=>this.toggleImages(),
+      saveJpeg:()=>this.saveJpeg(),
+      exportAll:()=>this.exportAll(),
+      exportDevLabel: isMobile?'MO':'PC',
+      sheetUrl:S.sheetUrl, setSheetUrl:e=>this.setState({sheetUrl:e.target.value}),
+      loadSheet:()=>this.loadSheet(), sheetStatus:S.sheetStatus,
+
+      // left
+      sectionList, onDragOver:(e)=>e.preventDefault(),
+      warnings, hasWarnings:warnings.length>0, noWarnings:warnings.length===0,
+
+      // device / frame
+      deviceWidth: isMobile?390:900, isMobile,
+      frameStyle: isMobile
+        ? 'border-radius:30px;overflow:hidden;box-shadow:0 4px 8px rgba(0,0,0,.05),0 20px 50px rgba(0,0,0,.18);border:1px solid #e9ecef;background:#fff'
+        : 'border-radius:16px;overflow:hidden;box-shadow:0 4px 8px rgba(0,0,0,.05),0 20px 50px rgba(0,0,0,.14);border:1px solid #e9ecef;background:#fff',
+
+      ord, show, badge,
+
+      // hero
+      accent:T.accent, accentSoft:T.soft, accentDeep:T.deep,
+      typeBadge: isLive?'LIVE 특가':'기획전',
+      heroAirline:this.ovGet('airline',D.airline),
+      heroTitle:this.ovGet('name',D.promoName),
+      heroSubtitle:this.ovGet('sub',D.subtitle),
+      heroTiming:isLive?this.ovGet('sched',D.liveTime):this.ovGet('sched',D.period),
+      heroTimingIcon:isLive?'🔴':'🗓',
+      heroBg,
+      heroPad:isMobile?'70px 22px 24px':'96px 32px 30px',
+      heroMinH:isMobile?460:560,
+      heroTitleSize:isMobile?30:38,
+      heroSubSize:isMobile?15:17,
+      heroFg: heroImage?'#fff':'#fff',
+      heroSubFg: heroImage?'rgba(255,255,255,.9)':'rgba(255,255,255,.85)',
+      heroShadow: heroImage?'0 1px 12px rgba(0,0,0,.35)':'none',
+      editName:e=>this.setOv('name',e.currentTarget.innerText),
+      editSub:e=>this.setOv('sub',e.currentTarget.innerText),
+      editCta:e=>this.setOv('cta',e.currentTarget.innerText),
+      // co-brand + periods
+      coLogoNode: S.airlineLogo
+        ? React.createElement('img',{src:S.airlineLogo, alt:this.ovGet('airline',D.airline), style:{height:'17px',width:'auto',maxWidth:'120px',objectFit:'contain'}})
+        : React.createElement('span',{style:{fontSize:'15px',fontWeight:800,letterSpacing:'-0.03em',color:'#fff'}}, this.ovGet('airline',D.airline)),
+      airlineLogoLabel: S.airlineLogo?'로고 교체':'로고 이미지 업로드',
+      uploadAirlineLogo:e=>this.uploadAirlineLogo(e),
+      planeNode: S.planeImage ? React.createElement('img',{src:S.planeImage, alt:'aircraft', style:{position:'absolute',top:(isMobile?'13%':'15%'),left:'50%',transform:'translateX(-50%)',width:'86%',maxWidth:(isMobile?'350px':'580px'),objectFit:'contain',zIndex:2,pointerEvents:'none',filter:'drop-shadow(0 14px 28px rgba(0,0,0,.3))'}}) : null,
+      uploadPlane:e=>this.uploadPlane(e),
+      planeLabel: S.planeImage?'기체 이미지 교체':'기체 이미지 업로드',
+      // unsplash picker
+      pickerOpen: S.pickerOpen,
+      openPicker:()=>this.setState({pickerOpen:true}),
+      closePicker:()=>this.setState({pickerOpen:false}),
+      stopProp:e=>e.stopPropagation(),
+      pickerUrl: S.pickerUrl,
+      setPickerUrl:e=>this.setState({pickerUrl:e.target.value}),
+      applyUrl:()=>this.applyUrl(),
+      pickerCats: ['전체','하늘','도시','해변','자연','유럽'].map(cat=>({ label:cat, onClick:()=>this.setState({pickerCat:cat}),
+        style:'height:32px;padding:0 13px;border:0;border-radius:99px;cursor:pointer;font-size:12.5px;font-weight:700;letter-spacing:-0.02em;background:'+(S.pickerCat===cat?'#101418':'#f1f3f5')+';color:'+(S.pickerCat===cat?'#fff':'#495056') })),
+      unsplashKey:S.unsplashKey, setKey:e=>this.setState({unsplashKey:e.target.value}),
+      searchQuery:S.searchQuery, setQuery:e=>this.setState({searchQuery:e.target.value}),
+      onSearchKey:e=>{ if(e.key==='Enter') this.doSearch(); },
+      doSearch:()=>this.doSearch(),
+      searchStatus: S.searching?'검색 중…':(S.searchError||''),
+      hasSearch: !!(S.searchResults && S.searchResults.length),
+      resultGrid: React.createElement('div',{style:{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px'}},
+        ((S.searchResults && S.searchResults.length)
+          ? S.searchResults.map((it,i)=>({key:'s'+i,onClick:()=>this.pickSearch(it.full),bg:it.thumb,title:''}))
+          : this.UNSPLASH_LIB.filter(it=>S.pickerCat==='전체'||it.c===S.pickerCat).map((it,i)=>({key:'c'+i,onClick:()=>this.pickImage(it.u),bg:it.u+'?auto=format&fit=crop&w=400&q=55',title:it.c}))
+        ).map(o=>React.createElement('button',{key:o.key,onClick:o.onClick,title:o.title,
+            style:{border:0,padding:0,cursor:'pointer',borderRadius:'10px',overflow:'hidden',aspectRatio:'4/3',backgroundImage:"url('"+o.bg+"')",backgroundSize:'cover',backgroundPosition:'center'}}))),
+      salesPeriod:this.ovGet('sales',D.salesPeriod),
+      boardingPeriod:this.ovGet('boarding',D.boardingPeriod),
+      boardingNote:this.ovGet('bnote',D.boardingNote),
+      editSales:e=>this.setOv('sales',e.currentTarget.innerText),
+      editBoarding:e=>this.setOv('boarding',e.currentTarget.innerText),
+      editSalesInput:e=>this.setOv('sales',e.target.value),
+      editBoardingInput:e=>this.setOv('boarding',e.target.value),
+
+      // schedule
+      schedKicker:isLive?'LIVE SCHEDULE':'PROMOTION PERIOD',
+      schedTitle:isLive?'이 시간, 라이브에서 만나요':'지금이 딱, 떠나기 좋은 기간',
+      schedDateLabel:isLive?'라이브 일시':'프로모션 기간',
+      prizeTitle:'참여할수록 커지는 여행의 즐거움',
+      purchaseTitle:'항공권만 담아도 혜택이 가득',
+      highlightTitle:isLive?'이번 라이브에서 주목할 여행지':'지금 뜨는 인기 여행지',
+      allTitle:'마음 가는 곳, 어디든 떠나보세요',
+      schedIcon:isLive?'📺':'🗓',
+      schedValue:isLive?this.ovGet('sched',D.liveTime):this.ovGet('sched',D.period),
+      schedSub:isLive?'방송 시작 전 알림을 신청하세요':'기간 내 예약 시 혜택 적용',
+      isLive,
+      liveBenefitItems,
+
+      prizeItems, purchaseItems,
+      highlightItems, highlightWrapStyle,
+      routeBlocks,
+      ctaLabel:this.ovGet('cta',D.ctaLabel),
+
+      // right panel
+      selLabel:META[selKey]?META[selKey].label:(this.routeMeta[selKey]?this.routeMeta[selKey].label:'설정'),
+      selIsVisual:selKey==='visual',
+      selIsSchedule:selKey==='schedule',
+      selIsGeneric: selKey!=='visual' && selKey!=='schedule',
+      inputStyle,
+      editNameInput:e=>this.setOv('name',e.target.value),
+      editSubInput:e=>this.setOv('sub',e.target.value),
+      editAirlineInput:e=>this.setOv('airline',e.target.value),
+      editSchedInput:e=>this.setOv('sched',e.target.value),
+      uploadHero:e=>this.uploadHero(e),
+
+      themeSwatches,
+
+      // summary
+      visibleCount: app.filter(k=>!S.hidden[k]).length,
+      highlightCount: D.highlight.length,
+      totalRouteCount,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family-base);
+  color: var(--fg-primary);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100%;
+}
+
+a {
+  color: var(--blue-s500);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--blue-s600);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Custom scrollbars — matches the prototype */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gray-s300);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-s400);
+  background-clip: padding-box;
+}
+
+/* Hide scrollbars inside the capture area so they never bleed into JPEGs */
+.cap-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 프리뷰 내 모든 텍스트는 줄바꿈을 단어(띄어쓰기) 단위로만 — 단어가 중간에서
+   잘리지 않도록. (한글은 기본적으로 어절 중간에서도 줄이 바뀌므로 keep-all 필요) */
+#promo-capture {
+  word-break: keep-all;
+}
+
+/* 라이브 방송 뱃지의 빨간 점 — 방송 중임을 직관적으로 드러내는 펄스 */
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(236, 73, 55, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(236, 73, 55, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(236, 73, 55, 0);
+  }
+}
+
+/* Inline-editable text affordances */
+[contenteditable] {
+  outline: none;
+  border-radius: 4px;
+  transition: box-shadow 0.12s;
+}
+[contenteditable]:hover {
+  box-shadow: 0 0 0 1.5px rgba(43, 150, 237, 0.35);
+}
+[contenteditable]:focus {
+  box-shadow: 0 0 0 2px var(--blue-s500);
+}

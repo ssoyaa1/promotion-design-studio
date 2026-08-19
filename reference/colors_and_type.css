@@ -1,0 +1,267 @@
+/* =================================================================
+   MyRealTrip Design System — Colors & Type (Dubai v2)
+   Source of truth: @myrealtrip/web-ui-theme
+   ================================================================= */
+
+/* ----------  FONT FAMILY  ----------
+   Primary: Pretendard (Korean + Latin) — loaded from local .otf files in /fonts. */
+@font-face { font-family: 'Pretendard'; font-weight: 100; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-Thin.otf') format('opentype'); }
+@font-face { font-family: 'Pretendard'; font-weight: 200; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-ExtraLight.otf') format('opentype'); }
+@font-face { font-family: 'Pretendard'; font-weight: 300; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-Light.otf') format('opentype'); }
+@font-face { font-family: 'Pretendard'; font-weight: 400; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-Regular.otf') format('opentype'); }
+@font-face { font-family: 'Pretendard'; font-weight: 500; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-Medium.otf') format('opentype'); }
+@font-face { font-family: 'Pretendard'; font-weight: 600; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-SemiBold.otf') format('opentype'); }
+@font-face { font-family: 'Pretendard'; font-weight: 700; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-Bold.otf') format('opentype'); }
+@font-face { font-family: 'Pretendard'; font-weight: 800; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-ExtraBold.otf') format('opentype'); }
+@font-face { font-family: 'Pretendard'; font-weight: 900; font-style: normal; font-display: swap;
+  src: url('fonts/Pretendard-Black.otf') format('opentype'); }
+
+:root {
+  --font-family-base: 'Pretendard', 'SF Pro KR', 'SF Pro Display',
+    -apple-system, BlinkMacSystemFont, 'Noto Sans KR', 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* ============  PALETTE  ============ */
+  --white: #FFFFFF;
+  --black: #000000;
+
+  /* Gray — primary neutral scale. s1000 is the brand's "primary" button. */
+  --gray-s50:   #f8f9fa;
+  --gray-s60:   #f5f6f7;
+  --gray-s80:   #f1f3f5;
+  --gray-s100:  #e9ecef;
+  --gray-s200:  #dee2e6;
+  --gray-s300:  #ced4da;
+  --gray-s400:  #adb5bd;
+  --gray-s500:  #848c94;
+  --gray-s600:  #666d75;
+  --gray-s700:  #495056;
+  --gray-s800:  #343a40;
+  --gray-s900:  #212529;
+  --gray-s1000: #101418;
+
+  /* Blue — brand accent. s500 is "primaryOpt" (bright CTA, links, focus). */
+  --blue-s50:  #f5fbff;
+  --blue-s80:  #e7f4fd;
+  --blue-s100: #cbe7fd;
+  --blue-s200: #a7d4f9;
+  --blue-s300: #79bef5;
+  --blue-s400: #51abf3;
+  --blue-s500: #2b96ed;  /* ★ brand blue */
+  --blue-s600: #1583db;
+  --blue-s700: #0a70c2;
+  --blue-s800: #025ba5;
+  --blue-s900: #01457d;
+
+  /* Green — success, price drops, saved */
+  --green-s50:  #e6f8f3;
+  --green-s80:  #d7f6ee;
+  --green-s100: #94e7d1;
+  --green-s200: #71d2b8;
+  --green-s300: #58caab;
+  --green-s400: #33b893;
+  --green-s500: #27ab86;
+  --green-s600: #1c9674;
+  --green-s700: #137b5e;
+  --green-s800: #10634c;
+  --green-s900: #0a4534;
+
+  /* Yellow — ratings, warnings */
+  --yellow-s50:  #fff8e1;
+  --yellow-s80:  #fff2c6;
+  --yellow-s100: #ffe182;
+  --yellow-s200: #ffd74e;
+  --yellow-s300: #ffc929;
+  --yellow-s400: #ffbf00;
+  --yellow-s500: #ffad01;
+  --yellow-s600: #ff9a00;
+  --yellow-s700: #f78000;
+  --yellow-s800: #db5600;
+  --yellow-s900: #b94100;
+
+  /* Red — errors, urgency, destructive */
+  --red-s50:  #fbf1ef;
+  --red-s80:  #ffd4cc;
+  --red-s100: #ffaea1;
+  --red-s200: #ff8d7c;
+  --red-s300: #fe6a54;
+  --red-s400: #fa5b4a;
+  --red-s500: #ec4937;
+  --red-s600: #dd3c2a;
+  --red-s700: #c83323;
+  --red-s800: #aa2a1b;
+  --red-s900: #8d2115;
+
+  /* Purple — member/premium tier, highlights */
+  --purple-s50:  #F6F0FF;
+  --purple-s80:  #E6D7FE;
+  --purple-s100: #D0B4FD;
+  --purple-s200: #B080FF;
+  --purple-s300: #A26EF7;
+  --purple-s400: #9355F6;
+  --purple-s500: #8238FA;
+  --purple-s600: #7226ED;
+  --purple-s700: #520FBD;
+  --purple-s800: #3D0B8E;
+  --purple-s900: #29085E;
+
+  /* ============  SEMANTIC (MRT convention)  ============ */
+  /* Foreground */
+  --fg-primary:    var(--gray-s1000);
+  --fg-secondary:  var(--gray-s700);
+  --fg-tertiary:   var(--gray-s500);
+  --fg-quaternary: var(--gray-s400);
+  --fg-disabled:   var(--gray-s300);
+  --fg-inverse:    var(--white);
+  --fg-brand:      var(--blue-s500);
+  --fg-success:    var(--green-s500);
+  --fg-warning:    var(--yellow-s700);
+  --fg-danger:     var(--red-s500);
+
+  /* Background */
+  --bg-canvas:     var(--white);
+  --bg-subtle:     var(--gray-s50);
+  --bg-muted:      var(--gray-s80);
+  --bg-inverse:    var(--gray-s1000);
+  --bg-brand:      var(--blue-s500);
+  --bg-brand-soft: var(--blue-s50);
+
+  /* Border */
+  --border-subtle:  var(--gray-s100);
+  --border-default: var(--gray-s200);
+  --border-strong:  var(--gray-s300);
+  --border-focus:   var(--blue-s500);
+  --border-error:   var(--red-s400);
+
+  /* ============  FONT WEIGHTS  ============ */
+  --fw-bold: 700;
+  --fw-semibold: 600;
+  --fw-medium: 500;
+  --fw-normal: 400;
+
+  /* ============  RADII  ============ */
+  --radius-xs: 4px;   /* Button rectangle, tags */
+  --radius-sm: 6px;   /* Small tags */
+  --radius-md: 8px;   /* Chip, text button */
+  --radius-lg: 12px;  /* Input, card */
+  --radius-xl: 16px;  /* Large card, dialog */
+  --radius-pill: 99px; /* Default button shape */
+
+  /* ============  SHADOWS (E-scale, elevation)  ============ */
+  --shadow-e100: 0 0.5px 0 rgba(0,0,0,.02), 0 1px 2px rgba(0,0,0,.03), 0 2px 4px rgba(0,0,0,.03);
+  --shadow-e200: 0 1px 2px rgba(0,0,0,.15);
+  --shadow-e300: 0 1px 2px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.1);
+  --shadow-e400: 0 1px 4px rgba(0,0,0,.03), 0 4px 12px rgba(0,0,0,.16);
+  --shadow-e500: 0 4px 8px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.2);
+  /* Vertical-inverse variants (shadow above element) */
+  --shadow-e100v: 0 -0.5px 0 rgba(0,0,0,.02), 0 -1px 2px rgba(0,0,0,.03), 0 -2px 4px rgba(0,0,0,.03);
+  --shadow-e300v: 0 -1px 2px rgba(0,0,0,.05), 0 -4px 14px rgba(0,0,0,.1);
+
+  /* ============  Z-INDEX  ============ */
+  --z-base: 0;
+  --z-cta: 9800;
+  --z-nav: 9900;
+  --z-bottomsheet: 10000;
+  --z-dialog: 20000;
+  --z-popup: 30000;
+  --z-alert: 40000;
+  --z-screen-loading: 50000;
+  --z-toast: 60000;
+  --z-tooltip: 61000;
+  --z-top: 99999999;
+
+  /* ============  BREAKPOINTS (for reference)  ============ */
+  /* xs 576  sm 768  md 1024  lg 1408  xl 1736 */
+}
+
+/* ============  BASE STYLES  ============ */
+html { font-size: 16px; }
+body {
+  margin: 0; padding: 0;
+  font-family: var(--font-family-base);
+  color: var(--fg-primary);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+  font-family: inherit;
+  letter-spacing: 0;
+}
+
+/* ============  TYPOGRAPHY — TABLES
+   Naming follows the codebase exactly: {category}{weight}{size}.
+   - display: hero / page-title (32-40px, tight lh 124%)
+   - headline: section headers, buttons (14-28px, lh 124%, tracking -0.01/-0.02em)
+   - paragraph: body copy (13-26px, lh 135-138%, relaxed)
+   - caption: labels, legal, tags (9-15px, lh 124-130%)
+   Bold = weight 700. Normal = weight 600 (display/headline) or 500 (paragraph/caption).
+   ============================================================= */
+
+/* Display — bold 40/36/32 */
+.t-display-bold-40   { font-size: 40px; font-weight: 700; line-height: 124%; }
+.t-display-bold-36   { font-size: 36px; font-weight: 700; line-height: 124%; }
+.t-display-bold-32   { font-size: 32px; font-weight: 700; line-height: 124%; }
+/* Display — normal (semi) 40/36/32 */
+.t-display-normal-40 { font-size: 40px; font-weight: 600; line-height: 124%; }
+.t-display-normal-36 { font-size: 36px; font-weight: 600; line-height: 124%; }
+.t-display-normal-32 { font-size: 32px; font-weight: 600; line-height: 124%; }
+
+/* Headline — bold 14→28 */
+.t-headline-bold-28  { font-size: 28px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; }
+.t-headline-bold-24  { font-size: 24px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; }
+.t-headline-bold-22  { font-size: 22px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; }
+.t-headline-bold-20  { font-size: 20px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; }
+.t-headline-bold-18  { font-size: 18px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; }
+.t-headline-bold-16  { font-size: 16px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; }
+.t-headline-bold-14  { font-size: 14px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; }
+/* Headline — normal (semi) */
+.t-headline-normal-28 { font-size: 28px; font-weight: 600; line-height: 124%; letter-spacing: -0.02em; }
+.t-headline-normal-24 { font-size: 24px; font-weight: 600; line-height: 124%; letter-spacing: -0.02em; }
+.t-headline-normal-20 { font-size: 20px; font-weight: 600; line-height: 124%; letter-spacing: -0.02em; }
+.t-headline-normal-18 { font-size: 18px; font-weight: 600; line-height: 124%; letter-spacing: -0.02em; }
+.t-headline-normal-16 { font-size: 16px; font-weight: 600; line-height: 124%; letter-spacing: -0.02em; }
+.t-headline-normal-14 { font-size: 14px; font-weight: 600; line-height: 124%; letter-spacing: -0.02em; }
+
+/* Paragraph — bold (semi 600) */
+.t-paragraph-bold-20 { font-size: 20px; font-weight: 600; line-height: 138%; letter-spacing: -0.02em; }
+.t-paragraph-bold-18 { font-size: 18px; font-weight: 600; line-height: 138%; letter-spacing: -0.02em; }
+.t-paragraph-bold-16 { font-size: 16px; font-weight: 600; line-height: 138%; letter-spacing: -0.02em; }
+.t-paragraph-bold-15 { font-size: 15px; font-weight: 600; line-height: 138%; letter-spacing: -0.02em; }
+.t-paragraph-bold-14 { font-size: 14px; font-weight: 600; line-height: 138%; letter-spacing: -0.02em; }
+.t-paragraph-bold-13 { font-size: 13px; font-weight: 600; line-height: 138%; letter-spacing: -0.02em; }
+/* Paragraph — normal (medium 500) */
+.t-paragraph-normal-20 { font-size: 20px; font-weight: 500; line-height: 138%; letter-spacing: -0.01em; }
+.t-paragraph-normal-18 { font-size: 18px; font-weight: 500; line-height: 138%; letter-spacing: -0.01em; }
+.t-paragraph-normal-16 { font-size: 16px; font-weight: 500; line-height: 138%; letter-spacing: -0.01em; }
+.t-paragraph-normal-15 { font-size: 15px; font-weight: 500; line-height: 138%; letter-spacing: -0.01em; }
+.t-paragraph-normal-14 { font-size: 14px; font-weight: 500; line-height: 138%; letter-spacing: -0.01em; }
+.t-paragraph-normal-13 { font-size: 13px; font-weight: 500; line-height: 138%; letter-spacing: -0.02em; }
+
+/* Caption — bold 9→15 */
+.t-caption-bold-13 { font-size: 13px; font-weight: 700; line-height: 130%; letter-spacing: -0.02em; }
+.t-caption-bold-12 { font-size: 12px; font-weight: 700; line-height: 124%; letter-spacing: -0.02em; }
+.t-caption-bold-11 { font-size: 11px; font-weight: 700; line-height: 124%; letter-spacing: -0.02em; }
+.t-caption-bold-10 { font-size: 10px; font-weight: 700; line-height: 124%; letter-spacing: -0.02em; }
+/* Caption — normal (medium 500) */
+.t-caption-normal-13 { font-size: 13px; font-weight: 500; line-height: 124%; letter-spacing: -0.02em; }
+.t-caption-normal-12 { font-size: 12px; font-weight: 500; line-height: 124%; letter-spacing: -0.02em; }
+.t-caption-normal-11 { font-size: 11px; font-weight: 500; line-height: 124%; letter-spacing: -0.02em; }
+.t-caption-normal-10 { font-size: 10px; font-weight: 500; line-height: 124%; letter-spacing: -0.02em; }
+
+/* ============  SEMANTIC SHORTHANDS  ============ */
+h1, .h1 { font-size: 32px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; margin: 0; }
+h2, .h2 { font-size: 24px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; margin: 0; }
+h3, .h3 { font-size: 20px; font-weight: 700; line-height: 124%; letter-spacing: -0.01em; margin: 0; }
+h4, .h4 { font-size: 18px; font-weight: 600; line-height: 124%; letter-spacing: -0.02em; margin: 0; }
+h5, .h5 { font-size: 16px; font-weight: 600; line-height: 124%; letter-spacing: -0.02em; margin: 0; }
+p, .p   { font-size: 16px; font-weight: 500; line-height: 138%; letter-spacing: -0.01em; margin: 0; }
+small   { font-size: 13px; font-weight: 500; line-height: 138%; letter-spacing: -0.02em; }
