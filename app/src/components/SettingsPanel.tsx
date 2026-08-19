@@ -220,18 +220,10 @@ export function SettingsPanel({
               )}
             </div>
 
-            {/* OAuth client id */}
-            <div>
-              <span style={fieldLabel}>OAuth 클라이언트 ID</span>
-              <input
-                value={auth.clientId}
-                onChange={(e) => auth.setClientId(e.target.value)}
-                placeholder="xxxxxxxx.apps.googleusercontent.com"
-                style={{ ...inputStyle, height: 36, marginTop: 5, fontSize: 11.5, fontWeight: 500 }}
-              />
-              <div style={hintStyle}>
-                승인된 JS 원본: <b>{location.origin}</b>
-              </div>
+            {/* OAuth 클라이언트 ID는 앱 전체가 공유하는 값(.env)이라 사용자별 입력 UI를
+                두지 않는다. 원본 등록 안내만 남긴다. */}
+            <div style={hintStyle}>
+              구글 클라우드 콘솔에 승인된 JS 원본으로 등록: <b>{location.origin}</b>
             </div>
 
             {/* proxy — only relevant for the public CSV path (no client id) */}
