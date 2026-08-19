@@ -1,6 +1,6 @@
 import { useReducer, useCallback, useMemo, useEffect } from 'react'
 import type { StudioState, PromoData, PromoType, Device, ThemeKey, SectionKey } from '../types'
-import { EMPTY_DATA, BASE_ORDER, HERO_IMG, img } from '../data/seed'
+import { EMPTY_DATA, BASE_ORDER } from '../data/seed'
 import { regenRoutes } from '../lib/routes'
 import { HIGHLIGHT_TITLE_COUNT, PRIZE_TITLE_COUNT, PURCHASE_TITLE_COUNT } from '../lib/highlightTitles'
 
