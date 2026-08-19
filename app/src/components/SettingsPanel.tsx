@@ -169,7 +169,7 @@ export function SettingsPanel({
             cursor: 'pointer',
           }}
         >
-          고급 설정 (링크 · OAuth) {authOpen ? '▲' : '▼'}
+          고급 설정 (링크 · OAuth · 이미지) {authOpen ? '▲' : '▼'}
         </button>
         {authOpen && (
           <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -224,6 +224,22 @@ export function SettingsPanel({
                 두지 않는다. 원본 등록 안내만 남긴다. */}
             <div style={hintStyle}>
               구글 클라우드 콘솔에 승인된 JS 원본으로 등록: <b>{location.origin}</b>
+            </div>
+
+            {/* Unsplash Access Key — "이미지 자동 채우기"가 동작하려면 필요.
+                브라우저(도메인)별로 로컬에 저장된다. */}
+            <div>
+              <span style={fieldLabel}>Unsplash Access Key</span>
+              <input
+                value={state.unsplashKey}
+                onChange={(e) => patch({ unsplashKey: e.target.value })}
+                placeholder="Unsplash Access Key (developers.unsplash.com 무료 발급)"
+                style={{ ...inputStyle, height: 36, marginTop: 5, fontSize: 11.5, fontWeight: 500 }}
+              />
+              <div style={hintStyle}>
+                "🖼 이미지 자동 채우기" 기능은 이 키가 있어야 동작합니다. 이 브라우저에만 저장되며,
+                다른 기기·브라우저에서는 각자 다시 입력해야 합니다.
+              </div>
             </div>
 
             {/* proxy — only relevant for the public CSV path (no client id) */}
