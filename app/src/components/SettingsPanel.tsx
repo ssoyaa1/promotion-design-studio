@@ -226,10 +226,10 @@ export function SettingsPanel({
               구글 클라우드 콘솔에 승인된 JS 원본으로 등록: <b>{location.origin}</b>
             </div>
 
-            {/* Unsplash Access Key — "이미지 자동 채우기"가 동작하려면 필요.
-                브라우저(도메인)별로 로컬에 저장된다. */}
+            {/* Unsplash Access Key — 공용 기본 키가 빌드에 심어져 있어 평소엔 비워둬도 된다.
+                여기 입력하면 이 브라우저에서만 그 값으로 덮어써서 쓴다(개인 한도로 쓰고 싶을 때). */}
             <div>
-              <span style={fieldLabel}>Unsplash Access Key</span>
+              <span style={fieldLabel}>Unsplash Access Key (선택)</span>
               <input
                 value={state.unsplashKey}
                 onChange={(e) => patch({ unsplashKey: e.target.value })}
@@ -237,8 +237,8 @@ export function SettingsPanel({
                 style={{ ...inputStyle, height: 36, marginTop: 5, fontSize: 11.5, fontWeight: 500 }}
               />
               <div style={hintStyle}>
-                "🖼 이미지 자동 채우기" 기능은 이 키가 있어야 동작합니다. 이 브라우저에만 저장되며,
-                다른 기기·브라우저에서는 각자 다시 입력해야 합니다.
+                "🖼 이미지 자동 채우기"는 공용 키로 기본 동작합니다. 요청 한도(시간당 50회)를
+                다른 사용자와 나눠 쓰기 싫다면 본인 키를 여기 입력하세요 — 이 브라우저에만 저장됩니다.
               </div>
             </div>
 

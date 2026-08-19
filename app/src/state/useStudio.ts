@@ -28,6 +28,9 @@ function lsSet(key: string, value: string): void {
   }
 }
 
+// 공용 기본 Unsplash 키(빌드 시 심어짐). 사용자가 우측 패널에 직접 입력하면 그 값이 우선한다.
+const ENV_UNSPLASH_KEY = (import.meta.env.VITE_UNSPLASH_ACCESS_KEY as string | undefined) || ''
+
 const initialState: StudioState = {
   promoType: 'live',
   device: 'mobile',
@@ -52,7 +55,7 @@ const initialState: StudioState = {
   pickerOpen: false,
   pickerCat: '전체',
   pickerUrl: '',
-  unsplashKey: lsGet(LS.unsplashKey),
+  unsplashKey: lsGet(LS.unsplashKey) || ENV_UNSPLASH_KEY,
   searchQuery: '',
   searchResults: [],
   searching: false,
