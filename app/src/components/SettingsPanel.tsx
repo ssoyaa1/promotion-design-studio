@@ -76,7 +76,6 @@ export function SettingsPanel({
   const selNumberLabel = selIdx >= 0 ? `${exportDevLabel}-${String(selIdx + 1).padStart(2, '0')}` : ''
   // Open "고급 설정" by default only on first run (no saved link to load yet).
   const [authOpen, setAuthOpen] = useState(!state.sheetUrl.trim())
-  const [showUnsplashKey, setShowUnsplashKey] = useState(false)
 
   return (
     <aside
@@ -231,34 +230,17 @@ export function SettingsPanel({
                 여기 입력하면 이 브라우저에서만 그 값으로 덮어써서 쓴다(개인 한도로 쓰고 싶을 때). */}
             <div>
               <span style={fieldLabel}>Unsplash Access Key (선택)</span>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showUnsplashKey ? 'text' : 'password'}
-                  value={state.unsplashKey}
-                  onChange={(e) => patch({ unsplashKey: e.target.value })}
-                  placeholder="Unsplash Access Key (developers.unsplash.com 무료 발급)"
-                  style={{ ...inputStyle, height: 36, marginTop: 5, paddingRight: 34, fontSize: 11.5, fontWeight: 500 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowUnsplashKey((v) => !v)}
-                  title={showUnsplashKey ? '가리기' : '보기'}
-                  style={{
-                    position: 'absolute',
-                    top: 5,
-                    right: 2,
-                    width: 30,
-                    height: 36,
-                    border: 0,
-                    background: 'transparent',
-                    cursor: 'pointer',
-                    fontSize: 13,
-                    color: '#adb5bd',
-                  }}
-                >
-                  {showUnsplashKey ? '🙈' : '👁'}
-                </button>
-              </div>
+              <input
+                type="password"
+                value={state.unsplashKey}
+                onChange={(e) => patch({ unsplashKey: e.target.value })}
+                onCopy={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
+                onContextMenu={(e) => e.preventDefault()}
+                autoComplete="off"
+                placeholder="Unsplash Access Key (developers.unsplash.com 무료 발급)"
+                style={{ ...inputStyle, height: 36, marginTop: 5, fontSize: 11.5, fontWeight: 500, userSelect: 'none' }}
+              />
               <div style={hintStyle}>
                 "🖼 이미지 자동 채우기"는 공용 키로 기본 동작합니다. 요청 한도(시간당 50회)를
                 다른 사용자와 나눠 쓰기 싫다면 본인 키를 여기 입력하세요 — 이 브라우저에만 저장됩니다.
