@@ -107,23 +107,23 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
         {/* 라이브: 라이브 방송 뱃지를 타이틀 상단에 배치 */}
         {isLive && (
           <div style={{ marginBottom: 0 }}>
-            <span
+            {/* html2canvas가 inline-flex + gap 조합을 안정적으로 캡처하지 못해(내부
+                콘텐츠가 통째로 비어 보이는 문제) flex(block) + margin 조합으로 대체. */}
+            <div
               style={{
-                display: 'inline-flex',
+                display: 'flex',
+                width: 'fit-content',
                 alignItems: 'center',
-                gap: fs(9),
                 background: '#fff',
                 borderRadius: 99,
                 padding: '6px 15px 6px 7px',
                 boxShadow: '0 6px 18px rgba(0,0,0,.22)',
-                verticalAlign: 'middle',
               }}
             >
-              <span
+              <div
                 style={{
-                  display: 'inline-flex',
+                  display: 'flex',
                   alignItems: 'center',
-                  gap: fs(6),
                   background: '#101418',
                   color: '#fff',
                   borderRadius: 99,
@@ -137,20 +137,21 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
                   style={{
                     width: fs(7),
                     height: fs(7),
+                    marginRight: fs(6),
                     borderRadius: '50%',
                     background: '#ec4937',
                     animation: 'livePulse 1.6s ease-out infinite',
                   }}
                 />
                 LIVE
-              </span>
+              </div>
               <Editable
                 as="span"
                 value={ovGet('liveBadge', '지금 방송 중')}
                 onCommit={(t) => setOv('liveBadge', t)}
-                style={{ color: '#101418', fontSize: fs(14), fontWeight: 700, letterSpacing: '-0.02em' }}
+                style={{ color: '#101418', fontSize: fs(14), fontWeight: 700, letterSpacing: '-0.02em', marginLeft: fs(9) }}
               />
-            </span>
+            </div>
           </div>
         )}
 
