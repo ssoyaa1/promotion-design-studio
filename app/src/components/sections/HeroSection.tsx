@@ -204,7 +204,7 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
           alignItems: 'center',
           justifyContent: 'center',
           gap: fs(6),
-          background: '#495057',
+          background: theme.accent,
           color: '#fff',
           padding: isMobile ? '17px 20px' : '19px 20px',
           fontSize: fs(16),

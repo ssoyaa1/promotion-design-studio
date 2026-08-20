@@ -8,7 +8,7 @@ export function CtaSection({ studio, d }: { studio: Studio; d: Derived }) {
   const airline = ovGet('airline', data.airline)
 
   return (
-    <section id="sec-cta" style={{ order: ord['cta'], padding: `26px ${padX}px`, background: '#101418' }}>
+    <section id="sec-cta" style={{ order: ord['cta'], padding: `26px ${padX}px`, background: theme.deep }}>
       <div style={{ textAlign: 'center' }}>
         <Editable
           value={ovGet('ctaLead', '지금 바로 특가 노선을 확인하세요')}
