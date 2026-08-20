@@ -107,7 +107,9 @@ function HighlightCard({
 
 export function HighlightSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { state, data, ovGet, setOv } = studio
-  const { theme, isMobile, ord, badge, titles, padX, fontScale, fs } = d
+  const { theme, isMobile, ord, badge, titles, padX, fontScale, fs, firstBadgeKey, lastBadgeKey } = d
+  const padTop = firstBadgeKey === 'highlight' ? 72 : 52
+  const padBottom = lastBadgeKey === 'highlight' ? 72 : 52
 
   const count = data.highlight.length
   // PC: 4개→2열, 나머지(3·5·6)→3열, 카드 폭 고정(190px) + 중앙 정렬
@@ -154,7 +156,7 @@ export function HighlightSection({ studio, d }: { studio: Studio; d: Derived }) 
   return (
     <section
       id="sec-highlight"
-      style={{ order: ord['highlight'], padding: '52px 0', background: '#fff' }}
+      style={{ order: ord['highlight'], padding: `${padTop}px 0 ${padBottom}px`, background: '#fff' }}
     >
       <div style={{ padding: `0 ${padX}px` }}>
         <SectionBadge label={badge['highlight']} accent={theme.accent} scale={fontScale} />

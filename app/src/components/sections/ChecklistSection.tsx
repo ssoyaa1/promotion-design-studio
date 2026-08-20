@@ -98,6 +98,8 @@ export function ChecklistSection({
   ovGet,
   setOv,
   benefitImg,
+  extraTopPad = false,
+  extraBottomPad = false,
 }: {
   id: string
   order: number
@@ -115,6 +117,9 @@ export function ChecklistSection({
   setOv: (k: string, v: string) => void
   /** 페이지 전역 중복 최소화 이미지 리졸버. id = `${ovPrefix}${i}`. */
   benefitImg?: (id: string) => string
+  /** 이 섹션이 현재 HIGHLIGHT 배지 중 첫/마지막일 때 상/하단 여백을 조금 더 넓힌다. */
+  extraTopPad?: boolean
+  extraBottomPad?: boolean
 }) {
   const pad = Math.round(20 * scale)
   // list/right(가로형 카드, 예: 항공사 강조)는 서브 문구가 모든 카드에서 한 줄에
@@ -280,7 +285,10 @@ export function ChecklistSection({
   )
 
   return (
-    <section id={id} style={{ order, padding: `36px ${padX}px`, background: '#fff' }}>
+    <section
+      id={id}
+      style={{ order, padding: `${extraTopPad ? 56 : 36}px ${padX}px ${extraBottomPad ? 56 : 36}px`, background: '#fff' }}
+    >
       <SectionBadge label={badge} accent={accent} scale={scale} />
       <EditableTitle value={ovGet(titleKey, title)} onCommit={(t) => setOv(titleKey, t)} scale={scale} />
 

@@ -96,12 +96,14 @@ function ScheduleRow({
 
 export function ScheduleSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { data, ovGet, setOv } = studio
-  const { theme, isLive, ord, badge, titles, padX, fontScale, fs } = d
+  const { theme, isLive, ord, badge, titles, padX, fontScale, fs, firstBadgeKey, lastBadgeKey } = d
+  const padTop = firstBadgeKey === 'schedule' ? 56 : 36
+  const padBottom = lastBadgeKey === 'schedule' ? 56 : 36
 
   return (
     <section
       id="sec-schedule"
-      style={{ order: ord['schedule'], padding: `36px ${padX}px`, background: '#fff' }}
+      style={{ order: ord['schedule'], padding: `${padTop}px ${padX}px ${padBottom}px`, background: '#fff' }}
     >
       <SectionBadge label={badge['schedule']} accent={theme.accent} scale={fontScale} />
       <EditableTitle value={ovGet('schedTitle', titles.schedule)} onCommit={(t) => setOv('schedTitle', t)} scale={fontScale} />

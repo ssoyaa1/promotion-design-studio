@@ -26,6 +26,9 @@ export interface Derived {
   ord: Record<string, number>
   show: Record<string, boolean>
   badge: Record<string, string>
+  /** HIGHLIGHT 배지가 붙는 섹션 중 현재 노출 순서상 처음/마지막에 오는 섹션 키. */
+  firstBadgeKey: SectionKey | null
+  lastBadgeKey: SectionKey | null
   warnings: string[]
   sectionLabel: (k: SectionKey) => string
   /**
@@ -105,12 +108,13 @@ export function derive(
 
   const visibleKeys = state.order.filter((k) => app.includes(k) && !state.hidden[k])
 
+  const badgeOrderedKeys = state.order.filter((k) => BADGE_KEYS.includes(k) && app.includes(k) && !state.hidden[k])
   const badge: Record<string, string> = {}
-  state.order
-    .filter((k) => BADGE_KEYS.includes(k) && app.includes(k) && !state.hidden[k])
-    .forEach((k, i) => {
-      badge[k] = `HIGHLIGHT ${i + 1}`
-    })
+  badgeOrderedKeys.forEach((k, i) => {
+    badge[k] = `HIGHLIGHT ${i + 1}`
+  })
+  const firstBadgeKey = badgeOrderedKeys[0] ?? null
+  const lastBadgeKey = badgeOrderedKeys[badgeOrderedKeys.length - 1] ?? null
 
   // 페이지 전역 혜택 이미지 배정(중복 최소화). 노출 순서(visibleKeys)대로 훑으며,
   // [구분]/키워드로 매칭된 이미지가 아직 페이지에서 안 쓰였으면 그대로, 이미 쓰였으면
@@ -171,6 +175,8 @@ export function derive(
     ord,
     show,
     badge,
+    firstBadgeKey,
+    lastBadgeKey,
     warnings,
     sectionLabel,
     benefitImg,

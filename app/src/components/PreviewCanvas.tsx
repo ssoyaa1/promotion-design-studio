@@ -12,7 +12,7 @@ import { RouteSection } from './sections/RouteSection'
 
 export function PreviewCanvas({ studio, d }: { studio: Studio; d: Derived }) {
   const { data, ovGet, setOv, selectKey } = studio
-  const { theme, isMobile, deviceWidth, ord, badge, titles, visibleKeys, padX } = d
+  const { theme, isMobile, deviceWidth, ord, badge, titles, visibleKeys, padX, firstBadgeKey, lastBadgeKey } = d
 
   const mainRef = useRef<HTMLElement>(null)
   const isAutoScrolling = useRef(false) // 자동 스크롤 중 → scroll 이벤트 무시
@@ -115,6 +115,8 @@ export function PreviewCanvas({ studio, d }: { studio: Studio; d: Derived }) {
             ovGet={ovGet}
             setOv={setOv}
             benefitImg={d.benefitImg}
+            extraTopPad={firstBadgeKey === 'purchase'}
+            extraBottomPad={lastBadgeKey === 'purchase'}
           />
         )
       case 'airline':
@@ -136,6 +138,8 @@ export function PreviewCanvas({ studio, d }: { studio: Studio; d: Derived }) {
             ovGet={ovGet}
             setOv={setOv}
             benefitImg={d.benefitImg}
+            extraTopPad={firstBadgeKey === 'airline'}
+            extraBottomPad={lastBadgeKey === 'airline'}
           />
         )
       case 'highlight':

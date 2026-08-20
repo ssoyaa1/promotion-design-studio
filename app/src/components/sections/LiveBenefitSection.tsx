@@ -24,10 +24,12 @@ const chipStyle = (accent: string, fs: (px: number) => number): React.CSSPropert
 
 export function LiveBenefitSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { data, ovGet, setOv } = studio
-  const { theme, ord, badge, titles, padX, fontScale, fs } = d
+  const { theme, ord, badge, titles, padX, fontScale, fs, firstBadgeKey, lastBadgeKey } = d
+  const padTop = firstBadgeKey === 'prize' ? 56 : 36
+  const padBottom = lastBadgeKey === 'prize' ? 56 : 36
 
   return (
-    <section id="sec-prize" style={{ order: ord['prize'], padding: `36px ${padX}px`, background: theme.soft }}>
+    <section id="sec-prize" style={{ order: ord['prize'], padding: `${padTop}px ${padX}px ${padBottom}px`, background: theme.soft }}>
       <SectionBadge label={badge['prize']} accent={theme.accent} scale={fontScale} />
       <EditableTitle value={ovGet('prizeTitle', titles.prize)} onCommit={(t) => setOv('prizeTitle', t)} scale={fontScale} />
 
