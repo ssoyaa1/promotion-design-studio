@@ -87,6 +87,7 @@ export function BenefitIcon({
   radius = 14,
   gradient = false,
   forceKey,
+  plain = false,
 }: {
   title: string
   accent: string
@@ -96,8 +97,26 @@ export function BenefitIcon({
   gradient?: boolean
   /** 지정하면 title 키워드 매칭을 건너뛰고 이 아이콘 키를 그대로 쓴다(예: 'check'). */
   forceKey?: string
+  /** 배경 타일 없이 아이콘만(둥근 사각형 박스 없이 라인 아이콘만 노출). */
+  plain?: boolean
 }) {
   const inner = ICONS[forceKey || iconKeyFor(title)]
+  if (plain) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={accent}
+        strokeWidth={1.7}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ flexShrink: 0 }}
+        dangerouslySetInnerHTML={{ __html: inner }}
+      />
+    )
+  }
   const icon = Math.round(size * 0.52)
   const tile: React.CSSProperties = gradient
     ? {
