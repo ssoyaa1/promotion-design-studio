@@ -190,7 +190,7 @@ export function RouteSection({
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: fs(14),
-    fontWeight: 700,
+    fontWeight: 600,
     letterSpacing: '-0.02em',
     color: active ? '#101418' : '#adb5bd',
     borderBottom: `2px solid ${active ? theme.accent : 'transparent'}`,
@@ -206,7 +206,7 @@ export function RouteSection({
     background: active ? '#101418' : '#f1f3f5',
     color: active ? '#fff' : '#495056',
     fontSize: fs(13),
-    fontWeight: 700,
+    fontWeight: 600,
     letterSpacing: '-0.02em',
     whiteSpace: 'nowrap',
   })
