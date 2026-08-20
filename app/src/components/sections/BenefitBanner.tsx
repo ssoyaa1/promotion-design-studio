@@ -84,7 +84,7 @@ export function BenefitBanner({
             style={{
               width: '100%',
               color: '#666d75',
-              fontSize: fs(16),
+              fontSize: fs(15),
               fontWeight: 600,
               letterSpacing: '-0.02em',
               lineHeight: 1.45,

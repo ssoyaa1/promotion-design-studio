@@ -98,7 +98,7 @@ function HighlightCard({
         <Editable
           value={ovGet(`hl${index}intro`, route.label || destIntro(route.to, cityOf(route.to)))}
           onCommit={(t) => setOv(`hl${index}intro`, t)}
-          style={{ fontSize: fs(16), fontWeight: 500, color: '#666d75', marginTop: 6, letterSpacing: '-0.02em', lineHeight: 1.45, overflow: 'hidden', height: Math.round(2 * 1.45 * fs(16)), wordBreak: 'keep-all', textAlign: 'center' }}
+          style={{ fontSize: fs(15), fontWeight: 500, color: '#666d75', marginTop: 6, letterSpacing: '-0.02em', lineHeight: 1.45, overflow: 'hidden', height: Math.round(2 * 1.45 * fs(15)), wordBreak: 'keep-all', textAlign: 'center' }}
         />
       </div>
     </div>

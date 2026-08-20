@@ -184,7 +184,7 @@ export function ChecklistSection({
         value={value}
         onCommit={(t) => setOv(`${ovPrefix}${i}d`, t)}
         style={{
-          fontSize: 16 * scale,
+          fontSize: 15 * scale,
           fontWeight: 600,
           color: '#848c94',
           marginTop: topGap,
@@ -193,8 +193,8 @@ export function ChecklistSection({
           overflow: 'hidden',
           wordBreak: 'keep-all',
           ...(detailSingleLine
-            ? { whiteSpace: 'nowrap' as const, textOverflow: 'ellipsis' as const, height: Math.round(1.4 * 16 * scale) }
-            : { height: Math.round(2 * 1.4 * 16 * scale), ...(detailForceTwoLines ? { whiteSpace: 'pre-line' as const } : null) }),
+            ? { whiteSpace: 'nowrap' as const, textOverflow: 'ellipsis' as const, height: Math.round(1.4 * 15 * scale) }
+            : { height: Math.round(2 * 1.4 * 15 * scale), ...(detailForceTwoLines ? { whiteSpace: 'pre-line' as const } : null) }),
           ...(center ? { textAlign: 'center' as const } : null),
         }}
       />
@@ -308,7 +308,7 @@ export function ChecklistSection({
             )
             const rawDetail = ovGet(`${ovPrefix}${i}d`, b.d)
             const column = (
-              <DetailColumn index={i} rawDetail={rawDetail} fontSize={16 * scale} onOverflowChange={handleRowDetailOverflow}>
+              <DetailColumn index={i} rawDetail={rawDetail} fontSize={15 * scale} onOverflowChange={handleRowDetailOverflow}>
                 {titleEl(i, b, false)}
                 {detailEl(i, b, false)}
               </DetailColumn>
