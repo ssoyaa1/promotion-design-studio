@@ -98,6 +98,7 @@ export interface StudioState {
   planeOffsetY: number
   planeScale: number
   skyIndex: number
+  airlineTitleSeed: number
   highlightTitleSeed: number
   prizeTitleSeed: number
   purchaseTitleSeed: number

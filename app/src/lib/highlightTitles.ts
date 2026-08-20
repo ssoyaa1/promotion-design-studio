@@ -28,7 +28,6 @@ export function pickPurchaseTitle(seed: number): string {
   return PURCHASE_TEMPLATES[seed % PURCHASE_TEMPLATES.length]
 }
 
-// ─── 강조 노선 타이틀 ─────────────────────────────────────────
 /** 마지막 음절의 받침 유무에 따라 와/과 반환 */
 function waga(name: string): string {
   if (!name) return '와'
@@ -36,6 +35,37 @@ function waga(name: string): string {
   if (code < 0xAC00 || code > 0xD7A3) return '와'
   return (code - 0xAC00) % 28 === 0 ? '와' : '과'
 }
+
+/** 마지막 음절의 받침 유무에 따라 로/으로 반환(받침 없음 또는 ㄹ받침 → 로) */
+function roga(name: string): string {
+  if (!name) return '로'
+  const code = name.charCodeAt(name.length - 1)
+  if (code < 0xAC00 || code > 0xD7A3) return '로'
+  const jong = (code - 0xAC00) % 28
+  return jong === 0 || jong === 8 ? '로' : '으로'
+}
+
+// ─── 항공사 강조 ─────────────────────────────────────────────
+const AIRLINE_TEMPLATES = [
+  '기분 좋은 여정을 위한 선택',
+  '여행의 시작을 더 편안하게',
+  '더 좋은 여행을 위한 선택',
+  '{A}{W} 만드는 편안한 비행',
+  '{A}{R} 시작하는 편안한 여정',
+  '{A}{R} 더 편안한 여정을',
+]
+
+export const AIRLINE_TITLE_COUNT = AIRLINE_TEMPLATES.length
+
+export function pickAirlineTitle(airline: string, seed: number): string {
+  const idx = seed % AIRLINE_TEMPLATES.length
+  return AIRLINE_TEMPLATES[idx]
+    .replace(/\{A\}/g, airline)
+    .replace(/\{W\}/g, waga(airline))
+    .replace(/\{R\}/g, roga(airline))
+}
+
+// ─── 강조 노선 타이틀 ─────────────────────────────────────────
 
 const TEMPLATES = [
   '지금 떠나기 좋은\n인기 노선',

@@ -4,11 +4,12 @@ import type { Derived } from '../lib/derive'
 import { THEMES } from '../data/seed'
 import type { SectionKey, ThemeKey } from '../types'
 import { readFile } from '../lib/readFile'
-import { HIGHLIGHT_TITLE_COUNT, PRIZE_TITLE_COUNT, PURCHASE_TITLE_COUNT } from '../lib/highlightTitles'
+import { AIRLINE_TITLE_COUNT, HIGHLIGHT_TITLE_COUNT, PRIZE_TITLE_COUNT, PURCHASE_TITLE_COUNT } from '../lib/highlightTitles'
 import { HERO_TITLE_FONTS } from '../lib/heroFonts'
 
 /** 랜덤 시드로 고르는 섹션 타이틀 — 우측 패널에서 새로고침 버튼으로 다시 뽑을 수 있게 한다. */
-const TITLE_SEED_CONFIG: Partial<Record<SectionKey, { key: 'prizeTitleSeed' | 'purchaseTitleSeed' | 'highlightTitleSeed'; count: number }>> = {
+const TITLE_SEED_CONFIG: Partial<Record<SectionKey, { key: 'airlineTitleSeed' | 'prizeTitleSeed' | 'purchaseTitleSeed' | 'highlightTitleSeed'; count: number }>> = {
+  airline: { key: 'airlineTitleSeed', count: AIRLINE_TITLE_COUNT },
   prize: { key: 'prizeTitleSeed', count: PRIZE_TITLE_COUNT },
   purchase: { key: 'purchaseTitleSeed', count: PURCHASE_TITLE_COUNT },
   highlight: { key: 'highlightTitleSeed', count: HIGHLIGHT_TITLE_COUNT },

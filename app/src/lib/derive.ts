@@ -2,7 +2,7 @@ import type { StudioState, PromoData, SectionKey, Theme } from '../types'
 import type { RouteInfo } from './routes'
 import { THEMES, makeBrandTheme } from '../data/seed'
 import { benefitImageKey, promoImgSrc } from './benefitImage'
-import { pickHighlightTitle, pickPrizeTitle, pickPurchaseTitle } from './highlightTitles'
+import { pickAirlineTitle, pickHighlightTitle, pickPrizeTitle, pickPurchaseTitle } from './highlightTitles'
 import { matchAirlineBrandColor } from './airlineBrandColor'
 
 /** Keys that receive an auto-numbered "HIGHLIGHT n" badge, in this order. */
@@ -178,7 +178,7 @@ export function derive(
       schedule: isLive ? '이 시간, 라이브에서 만나요' : '지금이 딱, 떠나기 좋은 기간',
       prize: pickPrizeTitle(state.prizeTitleSeed ?? 0),
       purchase: pickPurchaseTitle(state.purchaseTitleSeed ?? 0),
-      airline: '이 항공사, 이런 점이 좋아요',
+      airline: pickAirlineTitle(airlineName, state.airlineTitleSeed ?? 0),
       highlight: pickHighlightTitle(data.airline, state.highlightTitleSeed ?? 0),
     },
     counts: {
