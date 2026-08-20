@@ -59,9 +59,6 @@ function RouteCard({
   const im = useCityImage(cityQuery(city.code, name), enabled && !localIm, unsplashKey)
   const override = ovGet(imageKey, '')
   const imgSrc = override || localIm || im
-  const bg = imgSrc
-    ? `linear-gradient(180deg,rgba(0,0,0,.05) 40%,rgba(0,0,0,.62)),url('${imgSrc}') center/cover`
-    : `linear-gradient(150deg,${theme.accent},${theme.deep})`
   return (
     <div
       style={{
@@ -69,10 +66,29 @@ function RouteCard({
         borderRadius: 16,
         overflow: 'hidden',
         aspectRatio: wide ? '16 / 6.5' : '1 / 1',
-        background: bg,
+        background: imgSrc ? undefined : `linear-gradient(150deg,${theme.accent},${theme.deep})`,
         boxShadow: '0 1px 2px rgba(0,0,0,.05),0 6px 16px rgba(0,0,0,.06)',
       }}
     >
+      {imgSrc && (
+        <>
+          {/* CSS background-image 대신 실제 <img>를 써서 html2canvas 다운로드 시
+              화질이 낮게 캡처되는 문제를 피한다(배경 이미지는 원본 해상도를
+              제대로 못 살리는 경우가 있음). */}
+          <img
+            src={imgSrc}
+            alt=""
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg,rgba(0,0,0,.05) 40%,rgba(0,0,0,.62))',
+            }}
+          />
+        </>
+      )}
       <label data-no-export="true" style={{ ...roundIconBtnStyle, right: 8 }} title="이미지 교체">
         📷
         <input

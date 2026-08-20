@@ -36,14 +36,6 @@ function HighlightCard({
   const localIm = useLocalCityImage(route.to)
   const im = useCityImage(cityQuery(route.to), enabled && !localIm, unsplashKey)
   const imgSrc = localIm || im
-  const imgStyle: React.CSSProperties = imgSrc
-    ? { background: `linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.15)),url('${imgSrc}') center/cover` }
-    : {
-        background: `linear-gradient(135deg,${theme.accent}22,${theme.deep}22)`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }
 
   const fromText = ovGet(`hl${index}from`, cityOf(route.from))
   const toText = ovGet(`hl${index}to`, cityOf(route.to))
@@ -68,7 +60,33 @@ function HighlightCard({
 
   return (
     <div style={{ background: '#fff', border: '1px solid #e9ecef', borderRadius: 16, overflow: 'hidden' }}>
-      <div style={{ height: 112, ...imgStyle }} />
+      <div
+        style={{
+          height: 112,
+          position: 'relative',
+          overflow: 'hidden',
+          background: imgSrc ? '#e9ecef' : `linear-gradient(135deg,${theme.accent}22,${theme.deep}22)`,
+        }}
+      >
+        {imgSrc && (
+          <>
+            {/* CSS background-image 대신 실제 <img>를 써서 html2canvas 다운로드 시
+                화질이 낮게 캡처되는 문제를 피한다. */}
+            <img
+              src={imgSrc}
+              alt=""
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.15))',
+              }}
+            />
+          </>
+        )}
+      </div>
       <div style={{ padding: '13px 14px 16px' }}>
         <div
           ref={titleRowRef}
