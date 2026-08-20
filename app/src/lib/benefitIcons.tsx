@@ -86,6 +86,7 @@ export function BenefitIcon({
   size = 46,
   radius = 14,
   gradient = false,
+  forceKey,
 }: {
   title: string
   accent: string
@@ -93,8 +94,10 @@ export function BenefitIcon({
   size?: number
   radius?: number
   gradient?: boolean
+  /** 지정하면 title 키워드 매칭을 건너뛰고 이 아이콘 키를 그대로 쓴다(예: 'check'). */
+  forceKey?: string
 }) {
-  const inner = ICONS[iconKeyFor(title)]
+  const inner = ICONS[forceKey || iconKeyFor(title)]
   const icon = Math.round(size * 0.52)
   const tile: React.CSSProperties = gradient
     ? {

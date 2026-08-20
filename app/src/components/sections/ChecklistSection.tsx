@@ -239,7 +239,7 @@ export function ChecklistSection({
             const img = b.cat ? (
               <BenefitImage src={benefitImg?.(`${ovPrefix}${i}`)} cat={b.cat} title={b.t} soft={soft} size={imgSize} plain />
             ) : (
-              <BenefitIcon title={b.t} accent={accent} soft={soft} size={Math.round(54 * scale)} radius={16} gradient />
+              <BenefitIcon title={b.t} accent={accent} soft={soft} size={Math.round(54 * scale)} radius={16} gradient forceKey="check" />
             )
             return (
               <div
