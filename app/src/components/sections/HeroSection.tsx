@@ -221,7 +221,7 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
             style={{ display: 'inline' }}
           />
         </span>
-        <svg width={fs(13)} height={fs(13)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+        <svg width={fs(16)} height={fs(16)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 9l6 6 6-6" />
         </svg>
       </div>
