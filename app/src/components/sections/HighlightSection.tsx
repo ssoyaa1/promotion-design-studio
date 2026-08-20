@@ -125,7 +125,7 @@ export function HighlightSection({ studio, d }: { studio: Studio; d: Derived }) 
   const lastRowRoutes = remainder ? data.highlight.slice(count - remainder) : []
 
   // 출발지 노출 여부는 사용자가 우측 패널에서 직접 켜고 끌 수 있다(모든 카드에 일괄 적용).
-  const showFrom = ovGet('hlShowFrom', 'on') === 'on'
+  const showFrom = ovGet('hlShowFrom', 'off') === 'on'
   // 사용자가 켠 상태여도, 카드 중 하나라도 "출발 → 도착" 전체 텍스트가 한 줄을 넘치면
   // 섹션 내 모든 카드에 동일하게 도착지 전용 표시로 자동 전환하는 안전장치는 그대로 둔다.
   const [overflowMap, setOverflowMap] = useState<Record<number, boolean>>({})

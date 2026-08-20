@@ -415,7 +415,7 @@ export function SettingsPanel({
                 </span>
                 <input
                   type="checkbox"
-                  checked={ovGet('hlShowFrom', 'on') === 'on'}
+                  checked={ovGet('hlShowFrom', 'off') === 'on'}
                   onChange={(e) => setOv('hlShowFrom', e.target.checked ? 'on' : 'off')}
                 />
               </label>
