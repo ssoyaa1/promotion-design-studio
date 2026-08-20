@@ -19,7 +19,7 @@ export const AIRPORTS: Record<string, string> = {
   WUH: '우한', TAO: '칭다오', DLC: '다롄', TSN: '톈진',
   XMN: '샤먼', KMG: '쿤밍', CSX: '창사', CGO: '정저우',
   SYX: '싼야', HAK: '하이커우', URC: '우루무치', SHE: '선양',
-  HRB: '하얼빈', FOC: '푸저우', NNG: '난닝', KWE: '구이양', TNA: '제남', YNJ: '연길', YNT: '옌타이', CGQ: '창춘', WEH: '웨이하이', DYG: '장가계',
+  HRB: '하얼빈', FOC: '푸저우', NNG: '난닝', KWE: '구이양', TNA: '제남', YNJ: '옌지', YNT: '옌타이', CGQ: '창춘', WEH: '웨이하이', DYG: '장가계',
   HKG: '홍콩', MFM: '마카오', TPE: '타이베이', TSA: '타이베이',
   KHH: '가오슝', RMQ: '타이중',
   // 동남아시아
