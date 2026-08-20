@@ -10,7 +10,7 @@ const SKY_IMAGES = Array.from({ length: SKY_COUNT }, (_, i) => `/assets/sky/sky_
 
 export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { state, data, ovGet, setOv } = studio
-  const { theme, isLive, isMobile, ord, fs, ctaGradient } = d
+  const { theme, isLive, isMobile, ord, fs } = d
   const heroImage = state.heroImage
   const airline = ovGet('airline', data.airline)
   const titleFontKey = ovGet('heroTitleFont', HERO_TITLE_FONTS[state.heroTitleFontSeed]?.key || 'pretendard')
@@ -207,7 +207,7 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
           alignItems: 'center',
           justifyContent: 'center',
           gap: fs(6),
-          background: ctaGradient ?? theme.accent,
+          background: theme.accent,
           color: '#fff',
           padding: isMobile ? '17px 20px' : '19px 20px',
           fontSize: fs(16),

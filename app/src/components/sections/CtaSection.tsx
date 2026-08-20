@@ -4,7 +4,7 @@ import { Editable } from './common'
 
 export function CtaSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { data, ovGet, setOv } = studio
-  const { theme, ord, padX, fs, ctaGradient } = d
+  const { theme, ord, padX, fs } = d
   const airline = ovGet('airline', data.airline)
 
   return (
@@ -27,8 +27,8 @@ export function CtaSection({ studio, d }: { studio: Studio; d: Derived }) {
             height: 56,
             border: 0,
             borderRadius: 14,
-            background: ctaGradient ?? '#fff',
-            color: ctaGradient ? '#fff' : theme.deep,
+            background: '#fff',
+            color: theme.deep,
             fontSize: fs(17),
             fontWeight: 700,
             letterSpacing: '-0.03em',
