@@ -39,7 +39,7 @@ export function BenefitBanner({
         height: fs(178),
         borderRadius: fs(22),
         background: '#fff',
-        border: `1px solid ${accent}59`,
+        boxShadow: '0 2px 4px rgba(0,0,0,.03), 0 10px 26px rgba(0,0,0,.06)',
         padding: pad,
         display: 'flex',
         alignItems: 'center',

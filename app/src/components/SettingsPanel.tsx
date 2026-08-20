@@ -526,7 +526,7 @@ export function SettingsPanel({
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, justifyItems: 'center', marginTop: 10 }}>
           {(Object.keys(THEMES) as ThemeKey[]).map((key) => {
             const t = THEMES[key]
-            const on = state.theme === key
+            const on = state.themeMode === 'custom' && state.theme === key
             return (
               <button
                 key={key}
