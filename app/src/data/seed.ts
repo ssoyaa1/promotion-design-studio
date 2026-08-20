@@ -283,18 +283,20 @@ export function makeTheme(name: string, accentHex: string): Theme {
 }
 
 /**
- * 항공사 브랜드 컬러용 테마 빌더. 원색을 그대로 accent로 쓰면 배경/버튼 등에서
- * 가독성이 떨어지는 경우(예: 스쿠트항공의 밝은 노랑)가 있어, 명도가 지나치게
- * 높은 색상은 accent로 쓰기 전에 살짝 어둡게 보정한 뒤 makeTheme에 위임한다.
+ * 원색을 그대로 쓰면 배경/버튼 등에서 가독성이 떨어지는 경우(예: 스쿠트항공의
+ * 밝은 노랑)가 있어, 명도가 targetLum을 넘는 색상만 살짝 어둡게 보정한다.
  */
-export function makeBrandTheme(name: string, accentHex: string): Theme {
+export function clampAccentBrightness(accentHex: string, targetLum = 0.55): string {
   const acc = hexToRgb(accentHex)
   const lum = (acc[0] + acc[1] + acc[2]) / 3 / 255
-  const TARGET_LUM = 0.55
-  if (lum <= TARGET_LUM) return makeTheme(name, accentHex)
-  const t = 1 - TARGET_LUM / lum
-  const darkened = rgbToHex(mix(acc, [0, 0, 0], t))
-  return makeTheme(name, darkened)
+  if (lum <= targetLum) return rgbToHex(acc)
+  const t = 1 - targetLum / lum
+  return rgbToHex(mix(acc, [0, 0, 0], t))
+}
+
+/** 항공사 브랜드 컬러용 테마 빌더. accent로 쓰기 전에 밝기를 보정한 뒤 makeTheme에 위임한다. */
+export function makeBrandTheme(name: string, accentHex: string): Theme {
+  return makeTheme(name, clampAccentBrightness(accentHex))
 }
 
 export const THEMES: Record<ThemeKey, Theme> = {

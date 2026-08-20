@@ -1,9 +1,9 @@
 import type { StudioState, PromoData, SectionKey, Theme } from '../types'
 import type { RouteInfo } from './routes'
-import { THEMES, makeBrandTheme } from '../data/seed'
+import { THEMES, makeBrandTheme, clampAccentBrightness } from '../data/seed'
 import { benefitImageKey, promoImgSrc } from './benefitImage'
 import { pickAirlineTitle, pickHighlightTitle, pickPrizeTitle, pickPurchaseTitle } from './highlightTitles'
-import { matchAirlineBrandColor } from './airlineBrandColor'
+import { matchAirlineBrandColor, matchAirlineBrandColor2 } from './airlineBrandColor'
 
 /** Keys that receive an auto-numbered "HIGHLIGHT n" badge, in this order. */
 const BADGE_KEYS = ['schedule', 'airline', 'prize', 'purchase', 'highlight']
@@ -12,6 +12,11 @@ export interface Derived {
   theme: Theme
   /** 현재 항공사명으로 매칭된 브랜드 컬러(없으면 null). 설정 패널 안내문에 사용. */
   airlineBrandHex: string | null
+  /**
+   * 항공사가 보조 브랜드 컬러도 보유하고(auto 모드에서만) 있을 때의 CTA용
+   * 메인→보조 그라데이션 CSS 값. 해당 없으면 null(기존 단색 유지).
+   */
+  ctaGradient: string | null
   isLive: boolean
   isMobile: boolean
   deviceWidth: number
@@ -81,6 +86,13 @@ export function derive(
     state.themeMode === 'auto' && airlineBrandHex
       ? makeBrandTheme(airlineName, airlineBrandHex)
       : THEMES[state.theme]
+  // 항공사가 보조 브랜드 컬러도 보유한 경우(auto 모드에서만) CTA류 버튼에 메인→보조
+  // 그라데이션을 적용한다. 나머지 영역은 기존과 동일하게 accent 단색을 유지한다.
+  const airlineBrandHex2 = matchAirlineBrandColor2(airlineName)
+  const ctaGradient =
+    state.themeMode === 'auto' && airlineBrandHex && airlineBrandHex2
+      ? `linear-gradient(135deg, ${theme.accent} 0%, ${clampAccentBrightness(airlineBrandHex2)} 100%)`
+      : null
   const isLive = state.promoType === 'live'
   const isMobile = state.device === 'mobile'
   const fontScale = isMobile ? 1 : 1.15
@@ -164,6 +176,7 @@ export function derive(
   return {
     theme,
     airlineBrandHex,
+    ctaGradient,
     isLive,
     isMobile,
     deviceWidth: isMobile ? 390 : 1060,
