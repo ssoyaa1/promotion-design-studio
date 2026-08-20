@@ -299,11 +299,6 @@ export function makeBrandTheme(name: string, accentHex: string): Theme {
   return makeTheme(name, clampAccentBrightness(accentHex))
 }
 
-/** accent를 흰색 쪽으로 ratio만큼 섞은 밝은 틴트(어두운 배경 위 텍스트 강조용). */
-export function tint(hex: string, ratio: number): string {
-  return rgbToHex(mix(hexToRgb(hex), [255, 255, 255], ratio))
-}
-
 export const THEMES: Record<ThemeKey, Theme> = {
   red: makeTheme('레드', '#ca3436'),
   orange: makeTheme('오렌지', '#ff6600'),
