@@ -116,8 +116,13 @@ export function parseSheet(text: string): PromoData {
  */
 export function parseMatrix(matrix: string[][]): PromoData {
   const rows = matrix.map((r) => r.map((c) => (c || '').trim()))
-  const isField = (c: string) => /^\[.*\]$/.test(c)
-  const strip = (s: string) => s.replace(/^\[|\]$/g, '').trim()
+  // 헤더 셀은 "[필드명]" 뒤에 "- 16자 이내"처럼 안내용 텍스트가 덧붙는 경우가 있어,
+  // 끝까지 완전히 "[...]" 형태일 필요 없이 앞쪽 대괄호 블록만 있으면 필드로 인정한다.
+  const isField = (c: string) => /^\[[^[\]]*\]/.test(c)
+  const strip = (s: string) => {
+    const m = /^\[([^[\]]*)\]/.exec(s)
+    return (m ? m[1] : s.replace(/^\[|\]$/g, '')).trim()
+  }
 
   // 시트 첫 행의 첫 번째 셀 (예: "대한항공_마이썸머페스타") — 항공사명 추출에 사용
   const firstRow = rows.find((r) => r[0] && r[0].charAt(0) !== '■' && !isField(r[0]))
