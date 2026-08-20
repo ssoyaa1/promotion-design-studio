@@ -7,6 +7,26 @@ import { readFile } from '../lib/readFile'
 import { AIRLINE_TITLE_COUNT, HIGHLIGHT_TITLE_COUNT, PRIZE_TITLE_COUNT, PURCHASE_TITLE_COUNT } from '../lib/highlightTitles'
 import { HERO_TITLE_FONTS } from '../lib/heroFonts'
 
+/** 새로고침 아이콘(이모지 대신 일관된 라인 아이콘). */
+function RefreshIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M21 12a9 9 0 1 1-3-6.7" />
+      <path d="M21 3v6h-6" />
+    </svg>
+  )
+}
+
 /** 랜덤 시드로 고르는 섹션 타이틀 — 우측 패널에서 새로고침 버튼으로 다시 뽑을 수 있게 한다. */
 const TITLE_SEED_CONFIG: Partial<Record<SectionKey, { key: 'airlineTitleSeed' | 'prizeTitleSeed' | 'purchaseTitleSeed' | 'highlightTitleSeed'; count: number }>> = {
   airline: { key: 'airlineTitleSeed', count: AIRLINE_TITLE_COUNT },
@@ -123,7 +143,7 @@ export function SettingsPanel({
             }}
           >
             {auth.tabs.length === 0 ? (
-              <option value="">🔄로 시트를 불러오세요</option>
+              <option value="">새로고침 버튼으로 시트를 불러오세요</option>
             ) : (
               auth.tabs.map((t) => (
                 <option key={t.gid} value={t.gid}>
@@ -143,11 +163,13 @@ export function SettingsPanel({
               borderRadius: 10,
               background: '#101418',
               color: '#fff',
-              fontSize: 15,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               cursor: 'pointer',
             }}
           >
-            🔄
+            <RefreshIcon size={17} />
           </button>
         </div>
 
@@ -436,9 +458,14 @@ export function SettingsPanel({
                   color: '#101418',
                   cursor: 'pointer',
                   letterSpacing: '-0.02em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
                 }}
               >
-                🔄 타이틀 새로고침
+                <RefreshIcon size={14} />
+                타이틀 새로고침
               </button>
             )}
           </div>
