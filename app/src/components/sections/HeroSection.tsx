@@ -3,6 +3,7 @@ import type { Derived } from '../../lib/derive'
 import { Editable } from './common'
 import { airlineLogoSrc, airlinePlaneSrc } from '../../lib/airlineLogo'
 import { HERO_TITLE_FONTS, heroTitleFontFamily } from '../../lib/heroFonts'
+import { tint } from '../../data/seed'
 
 const SKY_COUNT = 8
 const SKY_IMAGES = Array.from({ length: SKY_COUNT }, (_, i) => `/assets/sky/sky_${i + 1}.jpg`)
@@ -27,6 +28,8 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
   const planeTop = `${(isMobile ? 13 : 15) + state.planeOffsetY}%`
   const planeWidth = `${86 * state.planeScale / 100}%`
   const planeMaxWidth = Math.round((isMobile ? 350 : 580) * state.planeScale / 100)
+  // 메인 타이틀에서 항공사명 줄만 흰색이 아닌 브랜드 accent의 밝은 틴트로 강조한다.
+  const airlineTitleColor = tint(theme.accent, 0.55)
 
   return (
     <section
@@ -184,7 +187,7 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
             fontFamily: titleFontFamily,
           }}
         >
-          <Editable as="span" value={airline} onCommit={(t) => setOv('airline', t)} style={{ display: 'block' }} />
+          <Editable as="span" value={airline} onCommit={(t) => setOv('airline', t)} style={{ display: 'block', color: airlineTitleColor }} />
           <Editable
             as="span"
             value={ovGet('heroTitle2', '단독 특가 프로모션')}
