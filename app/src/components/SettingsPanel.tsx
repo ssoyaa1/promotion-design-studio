@@ -5,6 +5,7 @@ import { THEMES } from '../data/seed'
 import type { SectionKey, ThemeKey } from '../types'
 import { readFile } from '../lib/readFile'
 import { HIGHLIGHT_TITLE_COUNT, PRIZE_TITLE_COUNT, PURCHASE_TITLE_COUNT } from '../lib/highlightTitles'
+import { HERO_TITLE_FONTS } from '../lib/heroFonts'
 
 /** 랜덤 시드로 고르는 섹션 타이틀 — 우측 패널에서 새로고침 버튼으로 다시 뽑을 수 있게 한다. */
 const TITLE_SEED_CONFIG: Partial<Record<SectionKey, { key: 'prizeTitleSeed' | 'purchaseTitleSeed' | 'highlightTitleSeed'; count: number }>> = {
@@ -283,6 +284,34 @@ export function SettingsPanel({
       <div style={{ padding: '6px 18px 18px', borderBottom: '1px solid #f1f3f5' }}>
         {selIsVisual && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* 메인 타이틀 폰트 — 4종 중 선택(기본은 세션마다 랜덤) */}
+            <div>
+              <span style={fieldLabel}>메인 타이틀 폰트</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}>
+                {HERO_TITLE_FONTS.map((f) => {
+                  const on = ovGet('heroTitleFont', HERO_TITLE_FONTS[state.heroTitleFontSeed]?.key || 'pretendard') === f.key
+                  return (
+                    <button
+                      key={f.key}
+                      onClick={() => setOv('heroTitleFont', f.key)}
+                      style={{
+                        height: 44,
+                        border: on ? 'none' : '1px solid #dee2e6',
+                        borderRadius: 10,
+                        background: on ? '#101418' : '#fff',
+                        color: on ? '#fff' : '#101418',
+                        cursor: 'pointer',
+                        letterSpacing: '-0.02em',
+                        fontFamily: f.family,
+                      }}
+                    >
+                      Aa {f.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             {/* 항공사 로고 / 기체 이미지 — 2열 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <div>

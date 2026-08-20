@@ -2,6 +2,7 @@ import type { Studio } from '../../state/useStudio'
 import type { Derived } from '../../lib/derive'
 import { Editable } from './common'
 import { airlineLogoSrc, airlinePlaneSrc } from '../../lib/airlineLogo'
+import { HERO_TITLE_FONTS, heroTitleFontFamily } from '../../lib/heroFonts'
 
 const SKY_COUNT = 8
 const SKY_IMAGES = Array.from({ length: SKY_COUNT }, (_, i) => `/assets/sky/sky_${i + 1}.jpg`)
@@ -11,6 +12,8 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { theme, isLive, isMobile, ord, fs } = d
   const heroImage = state.heroImage
   const airline = ovGet('airline', data.airline)
+  const titleFontKey = ovGet('heroTitleFont', HERO_TITLE_FONTS[state.heroTitleFontSeed]?.key || 'pretendard')
+  const titleFontFamily = heroTitleFontFamily(titleFontKey)
 
   const bgImage = heroImage || SKY_IMAGES[(state.skyIndex ?? 0) % SKY_COUNT]
   const heroBg = bgImage
@@ -178,6 +181,7 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
             letterSpacing: '-0.035em',
             color: '#fff',
             textShadow: heroShadow,
+            fontFamily: titleFontFamily,
           }}
         >
           <Editable as="span" value={airline} onCommit={(t) => setOv('airline', t)} style={{ display: 'block' }} />

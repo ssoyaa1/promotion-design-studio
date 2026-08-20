@@ -3,6 +3,7 @@ import type { StudioState, PromoData, PromoType, Device, ThemeKey, SectionKey } 
 import { EMPTY_DATA, BASE_ORDER } from '../data/seed'
 import { regenRoutes } from '../lib/routes'
 import { HIGHLIGHT_TITLE_COUNT, PRIZE_TITLE_COUNT, PURCHASE_TITLE_COUNT } from '../lib/highlightTitles'
+import { HERO_TITLE_FONT_COUNT } from '../lib/heroFonts'
 
 const initialRoutes = regenRoutes(EMPTY_DATA.departures)
 
@@ -49,6 +50,7 @@ const initialState: StudioState = {
   highlightTitleSeed: Math.floor(Math.random() * HIGHLIGHT_TITLE_COUNT),
   prizeTitleSeed: Math.floor(Math.random() * PRIZE_TITLE_COUNT),
   purchaseTitleSeed: Math.floor(Math.random() * PURCHASE_TITLE_COUNT),
+  heroTitleFontSeed: Math.floor(Math.random() * HERO_TITLE_FONT_COUNT),
   importedData: null,
   sheetUrl: lsGet(LS.sheetUrl),
   sheetStatus: '',

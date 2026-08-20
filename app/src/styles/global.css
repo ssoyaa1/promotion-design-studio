@@ -1,3 +1,23 @@
+/* 메인 비주얼 타이틀 전용 폰트(4종 중 선택). 다른 모든 텍스트는 Pretendard(CDN)로 통일된다. */
+@font-face {
+  font-family: 'FlightSans';
+  src: url('/assets/fonts/FlightSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'KakaoBigSans';
+  src: url('/assets/fonts/KakaoBigSans-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('/assets/fonts/Paperlogy-7Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {

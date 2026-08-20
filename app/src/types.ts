@@ -99,6 +99,8 @@ export interface StudioState {
   highlightTitleSeed: number
   prizeTitleSeed: number
   purchaseTitleSeed: number
+  /** 메인 비주얼 타이틀 폰트 랜덤 시드(HERO_TITLE_FONTS 인덱스). */
+  heroTitleFontSeed: number
   importedData: PromoData | null
   sheetUrl: string
   sheetStatus: string
