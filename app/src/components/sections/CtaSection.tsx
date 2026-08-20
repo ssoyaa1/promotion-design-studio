@@ -8,7 +8,7 @@ export function CtaSection({ studio, d }: { studio: Studio; d: Derived }) {
   const airline = ovGet('airline', data.airline)
 
   return (
-    <section id="sec-cta" style={{ order: ord['cta'], padding: `26px ${padX}px`, background: theme.deep }}>
+    <section id="sec-cta" style={{ order: ord['cta'], padding: `32px ${padX}px`, background: theme.deep }}>
       <div style={{ textAlign: 'center' }}>
         <Editable
           value={ovGet('ctaLead', '지금 바로 특가 노선을 확인하세요')}
@@ -18,17 +18,17 @@ export function CtaSection({ studio, d }: { studio: Studio; d: Derived }) {
             fontWeight: 700,
             color: 'rgba(255,255,255,.72)',
             letterSpacing: '-0.02em',
-            marginBottom: 14,
+            marginBottom: 16,
           }}
         />
         <button
           style={{
             width: '100%',
-            height: 56,
+            height: 58,
             border: 0,
-            borderRadius: 14,
-            background: '#fff',
-            color: theme.deep,
+            borderRadius: 999,
+            background: theme.soft,
+            color: theme.accent,
             fontSize: fs(17),
             fontWeight: 700,
             letterSpacing: '-0.03em',
@@ -40,8 +40,7 @@ export function CtaSection({ studio, d }: { studio: Studio; d: Derived }) {
             value={ovGet('cta', data.ctaLabel || (airline ? `${airline} 특가 노선 보러가기` : '특가 노선 보러가기'))}
             onCommit={(t) => setOv('cta', t)}
             style={{ display: 'inline' }}
-          />{' '}
-          ›
+          />
         </button>
       </div>
     </section>
