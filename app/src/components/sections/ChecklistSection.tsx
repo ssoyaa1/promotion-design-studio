@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { Item } from '../../types'
 import { Editable, EditableTitle, SectionBadge } from './common'
 import { BenefitIcon, BenefitImage } from '../../lib/benefitIcons'
@@ -25,6 +26,49 @@ function forceTwoLines(text: string): string {
   if (t.length < 2) return t
   const cut = Math.ceil(t.length / 2)
   return t.slice(0, cut) + '\n' + t.slice(cut)
+}
+
+/**
+ * list/right(가로형 카드)의 텍스트 컬럼. 보이지 않는 측정용 span으로 서브 문구가
+ * 실제로 한 줄에 들어가는지 실측(ResizeObserver)해서 부모에 보고한다 — 카드 하나라도
+ * 넘치면 섹션 전체가 2줄 모드로, 아니면 전체가 1줄 모드로 통일되도록 하기 위함.
+ */
+function DetailColumn({
+  index,
+  rawDetail,
+  fontSize,
+  onOverflowChange,
+  children,
+}: {
+  index: number
+  rawDetail: string
+  fontSize: number
+  onOverflowChange: (index: number, overflow: boolean) => void
+  children: React.ReactNode
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const measureRef = useRef<HTMLSpanElement>(null)
+  useLayoutEffect(() => {
+    const containerEl = containerRef.current
+    const measureEl = measureRef.current
+    if (!containerEl || !measureEl) return
+    const check = () => onOverflowChange(index, measureEl.scrollWidth > containerEl.clientWidth)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(containerEl)
+    return () => ro.disconnect()
+  }, [index, rawDetail, fontSize, onOverflowChange])
+  return (
+    <div ref={containerRef} style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+      {children}
+      <span
+        ref={measureRef}
+        style={{ position: 'absolute', top: 0, left: 0, visibility: 'hidden', whiteSpace: 'nowrap', fontSize, fontWeight: 600, letterSpacing: '-0.02em' }}
+      >
+        {rawDetail}
+      </span>
+    </div>
+  )
 }
 
 /**
@@ -73,6 +117,16 @@ export function ChecklistSection({
   benefitImg?: (id: string) => string
 }) {
   const pad = Math.round(20 * scale)
+  // list/right(가로형 카드, 예: 항공사 강조)는 서브 문구가 모든 카드에서 한 줄에
+  // 들어가는지 실측해서, 하나라도 넘치면 섹션 전체를 2줄로, 아니면 전체를 1줄로 통일한다.
+  const isRowVariant = variant !== 'grid'
+  const [rowDetailOverflowMap, setRowDetailOverflowMap] = useState<Record<number, boolean>>({})
+  useEffect(() => setRowDetailOverflowMap({}), [items.length, variant])
+  const handleRowDetailOverflow = useCallback(
+    (i: number, overflow: boolean) => setRowDetailOverflowMap((prev) => (prev[i] === overflow ? prev : { ...prev, [i]: overflow })),
+    [],
+  )
+  const anyRowDetailOverflow = Object.values(rowDetailOverflowMap).some(Boolean)
   // 상세 문구가 없는 섹션(예: 구매 혜택)은 더 컴팩트한 카드로, 있는 섹션(예: 항공사
   // 강조)은 텍스트가 잘리지 않도록 조금 더 높게. 카드 크기는 섹션 내에서 항상 동일.
   const gridHasDetails = items.some((b, i) => !!ovGet(`${ovPrefix}${i}d`, b.d))
@@ -112,8 +166,10 @@ export function ChecklistSection({
     border: '1px solid #e9ecef',
     borderRadius: 20,
   }
-  // grid(구매 혜택)·list(항공사 강조)는 서브 문구도 타이틀처럼 항상 2줄로 강제 노출한다.
-  const detailForceTwoLines = variant === 'grid' || variant === 'list'
+  // grid(구매 혜택)는 서브 문구를 항상 2줄로 강제 노출한다. list/right(항공사 강조 등)는
+  // 실측 결과 하나라도 한 줄을 넘치면 2줄, 전부 한 줄에 들어가면 1줄로 통일한다.
+  const detailForceTwoLines = variant === 'grid' ? true : anyRowDetailOverflow
+  const detailSingleLine = isRowVariant && !detailForceTwoLines
   const detailEl = (i: number, b: Item, center: boolean, topGap = 3) => {
     const raw = ovGet(`${ovPrefix}${i}d`, b.d)
     if (!raw) return null
@@ -131,8 +187,9 @@ export function ChecklistSection({
           lineHeight: 1.4,
           overflow: 'hidden',
           wordBreak: 'keep-all',
-          ...(detailForceTwoLines ? { whiteSpace: 'pre-line' as const } : null),
-          height: Math.round(2 * 1.4 * 16 * scale),
+          ...(detailSingleLine
+            ? { whiteSpace: 'nowrap' as const, textOverflow: 'ellipsis' as const, height: Math.round(1.4 * 16 * scale) }
+            : { height: Math.round(2 * 1.4 * 16 * scale), ...(detailForceTwoLines ? { whiteSpace: 'pre-line' as const } : null) }),
           ...(center ? { textAlign: 'center' as const } : null),
         }}
       />
@@ -239,14 +296,21 @@ export function ChecklistSection({
             const img = b.cat ? (
               <BenefitImage src={benefitImg?.(`${ovPrefix}${i}`)} cat={b.cat} title={b.t} soft={soft} size={imgSize} plain />
             ) : (
-              <BenefitIcon title={b.t} accent={accent} soft={soft} size={Math.round(54 * scale)} radius={16} forceKey="check" plain />
+              <BenefitIcon title={b.t} accent={accent} soft={soft} size={Math.round(44 * scale)} radius={16} forceKey="check" plain />
+            )
+            const rawDetail = ovGet(`${ovPrefix}${i}d`, b.d)
+            const column = (
+              <DetailColumn index={i} rawDetail={rawDetail} fontSize={16 * scale} onOverflowChange={handleRowDetailOverflow}>
+                {titleEl(i, b, false)}
+                {detailEl(i, b, false)}
+              </DetailColumn>
             )
             return (
               <div
                 key={i}
                 style={{
                   ...cardStyle,
-                  height: Math.round(128 * scale),
+                  height: anyRowDetailOverflow ? Math.round(128 * scale) : Math.round(104 * scale),
                   padding: pad,
                   display: 'flex',
                   alignItems: 'center',
@@ -255,19 +319,13 @@ export function ChecklistSection({
               >
                 {variant === 'right' ? (
                   <>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      {titleEl(i, b, false)}
-                      {detailEl(i, b, false)}
-                    </div>
+                    {column}
                     {img}
                   </>
                 ) : (
                   <>
                     {img}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      {titleEl(i, b, false)}
-                      {detailEl(i, b, false)}
-                    </div>
+                    {column}
                   </>
                 )}
               </div>
