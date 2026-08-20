@@ -55,7 +55,7 @@ export function TopBar({
       <img src="/assets/my_logo.webp" alt="MyRealTrip" style={{ height: 20, width: 'auto' }} />
       <div style={{ width: 1, height: 22, background: '#e9ecef' }} />
       <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.02em', color: '#101418', whiteSpace: 'nowrap' }}>
-        [FLIGHT] 프로모션 페이지 제작
+        [항공] 프로모션 페이지 제작
       </span>
 
       <div style={{ flex: 1 }} />
