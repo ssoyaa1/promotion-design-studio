@@ -189,7 +189,7 @@ export function PreviewCanvas({ studio, d }: { studio: Studio; d: Derived }) {
 
           <div
             id="promo-capture"
-            style={{ background: '#fff', display: 'flex', flexDirection: 'column', gap: isMobile ? 20 : 28 }}
+            style={{ background: '#fff', display: 'flex', flexDirection: 'column', gap: 10 }}
           >
             {visibleKeys.map(renderSection)}
           </div>
