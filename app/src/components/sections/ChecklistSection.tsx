@@ -4,7 +4,11 @@ import { BenefitIcon, BenefitImage } from '../../lib/benefitIcons'
 
 export type ChecklistVariant = 'list' | 'right' | 'grid'
 
-/** 공백 중 중앙에 가장 가까운 지점에 줄바꿈을 넣어 항상 2줄로 보이게 한다(이미 \n이 있으면 그대로 둠). */
+/**
+ * 한 줄로 표시 가능한 짧은 문구도 항상 2줄로 보이게 강제 줄바꿈을 넣는다(이미
+ * \n이 있으면 그대로 둠). 공백 중 중앙에 가장 가까운 지점을 우선 쓰고(단어가
+ * 잘리지 않도록), 공백이 전혀 없는 텍스트는 글자 수 중간 지점에서 나눈다.
+ */
 function forceTwoLines(text: string): string {
   const t = text.trim()
   if (!t || t.includes('\n')) return t
@@ -17,8 +21,10 @@ function forceTwoLines(text: string): string {
       if (dist < bestDist) { bestDist = dist; bestIdx = i }
     }
   }
-  if (bestIdx === -1) return t
-  return t.slice(0, bestIdx) + '\n' + t.slice(bestIdx + 1)
+  if (bestIdx !== -1) return t.slice(0, bestIdx) + '\n' + t.slice(bestIdx + 1)
+  if (t.length < 2) return t
+  const cut = Math.ceil(t.length / 2)
+  return t.slice(0, cut) + '\n' + t.slice(cut)
 }
 
 /**
