@@ -96,6 +96,13 @@ button {
   }
 }
 
+/* 저장(내보내기) 중 로딩 모달의 스피너 */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Inline-editable text affordances */
 [contenteditable] {
   outline: none;

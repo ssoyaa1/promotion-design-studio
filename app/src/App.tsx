@@ -33,6 +33,7 @@ export default function App() {
   const studio = useStudio()
   const { state, data, routeInfo, ovGet, patch, loadData } = studio
   const [useProxy, setUseProxy] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [clientId, setClientId] = useState<string>(
     () => localStorage.getItem(CLIENT_ID_KEY) || ENV_CLIENT_ID,
   )
@@ -178,12 +179,14 @@ export default function App() {
     const yymmdd = extractYYMMDD(basisDateRaw) || 'YYMMDD'
     const airline = (ovGet('airline', data.airline) || '항공사').trim().replace(/[\\/:*?"<>|]/g, '')
     const folderName = `${yymmdd}_${airline}_${d.exportDevLabel}`
-    runExportAll(d.visibleKeys, d.exportDevLabel, folderName)
+    setExporting(true)
+    runExportAll(d.visibleKeys, d.exportDevLabel, folderName).finally(() => setExporting(false))
   }, [d.visibleKeys, d.exportDevLabel, d.isLive, data.liveTime, data.salesPeriod, data.airline, ovGet])
 
   const onExportSection = useCallback(
     (key: SectionKey) => {
-      runExportSection(key, d.visibleKeys, d.exportDevLabel)
+      setExporting(true)
+      runExportSection(key, d.visibleKeys, d.exportDevLabel).finally(() => setExporting(false))
     },
     [d.visibleKeys, d.exportDevLabel],
   )
@@ -230,6 +233,46 @@ export default function App() {
         />
       </div>
       <UnsplashPicker studio={studio} />
+      {exporting && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(16,20,24,.45)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 14,
+              padding: '28px 36px',
+              borderRadius: 16,
+              background: '#fff',
+              boxShadow: '0 12px 32px rgba(0,0,0,.2)',
+            }}
+          >
+            <div
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                border: '3px solid #e9ecef',
+                borderTopColor: '#101418',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            />
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#101418', letterSpacing: '-0.02em' }}>
+              저장 중…
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
