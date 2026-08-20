@@ -268,7 +268,7 @@ function mix(a: RGB, b: RGB, t: number): RGB {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
 }
 /** Build a full theme from a single accent hex. */
-function makeTheme(name: string, accentHex: string): Theme {
+export function makeTheme(name: string, accentHex: string): Theme {
   const acc = hexToRgb(accentHex)
   const lum = (acc[0] + acc[1] + acc[2]) / 3 / 255
   const accent = rgbToHex(acc)
@@ -280,6 +280,21 @@ function makeTheme(name: string, accentHex: string): Theme {
     soft: rgbToHex(mix(acc, [255, 255, 255], 0.88)),
     deep: rgbToHex(mix(acc, [0, 0, 0], 0.55)),
   }
+}
+
+/**
+ * 항공사 브랜드 컬러용 테마 빌더. 원색을 그대로 accent로 쓰면 배경/버튼 등에서
+ * 가독성이 떨어지는 경우(예: 스쿠트항공의 밝은 노랑)가 있어, 명도가 지나치게
+ * 높은 색상은 accent로 쓰기 전에 살짝 어둡게 보정한 뒤 makeTheme에 위임한다.
+ */
+export function makeBrandTheme(name: string, accentHex: string): Theme {
+  const acc = hexToRgb(accentHex)
+  const lum = (acc[0] + acc[1] + acc[2]) / 3 / 255
+  const TARGET_LUM = 0.55
+  if (lum <= TARGET_LUM) return makeTheme(name, accentHex)
+  const t = 1 - TARGET_LUM / lum
+  const darkened = rgbToHex(mix(acc, [0, 0, 0], t))
+  return makeTheme(name, darkened)
 }
 
 export const THEMES: Record<ThemeKey, Theme> = {

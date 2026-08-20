@@ -36,6 +36,7 @@ const initialState: StudioState = {
   promoType: 'live',
   device: 'mobile',
   theme: 'blue',
+  themeMode: 'auto',
   selectedKey: 'visual',
   order: [...BASE_ORDER, ...initialRoutes.routeKeys],
   hidden: {},
@@ -131,7 +132,8 @@ export function useStudio() {
     [],
   )
   const setDevice = useCallback((d: Device) => patch({ device: d }), [patch])
-  const setTheme = useCallback((t: ThemeKey) => patch({ theme: t }), [patch])
+  const setTheme = useCallback((t: ThemeKey) => patch({ theme: t, themeMode: 'custom' }), [patch])
+  const setThemeMode = useCallback((m: 'auto' | 'custom') => patch({ themeMode: m }), [patch])
   const selectKey = useCallback((k: SectionKey) => patch({ selectedKey: k }), [patch])
   const reorder = useCallback(
     (from: SectionKey, to: SectionKey) => dispatch({ type: 'reorder', from, to }),
@@ -161,6 +163,7 @@ export function useStudio() {
     setPromoType,
     setDevice,
     setTheme,
+    setThemeMode,
     selectKey,
     reorder,
     toggleHidden,

@@ -1,14 +1,17 @@
 import type { StudioState, PromoData, SectionKey, Theme } from '../types'
 import type { RouteInfo } from './routes'
-import { THEMES } from '../data/seed'
+import { THEMES, makeBrandTheme } from '../data/seed'
 import { benefitImageKey, promoImgSrc } from './benefitImage'
 import { pickHighlightTitle, pickPrizeTitle, pickPurchaseTitle } from './highlightTitles'
+import { matchAirlineBrandColor } from './airlineBrandColor'
 
 /** Keys that receive an auto-numbered "HIGHLIGHT n" badge, in this order. */
 const BADGE_KEYS = ['schedule', 'airline', 'prize', 'purchase', 'highlight']
 
 export interface Derived {
   theme: Theme
+  /** 현재 항공사명으로 매칭된 브랜드 컬러(없으면 null). 설정 패널 안내문에 사용. */
+  airlineBrandHex: string | null
   isLive: boolean
   isMobile: boolean
   deviceWidth: number
@@ -68,7 +71,13 @@ export function derive(
   routeInfo: RouteInfo,
   ovGet: (k: string, def: string) => string,
 ): Derived {
-  const theme = THEMES[state.theme]
+  // 테마 결정 우선순위: 사용자 지정 색상 > 항공사 자동 브랜드 컬러 > 기존 기본 테마.
+  const airlineName = ovGet('airline', data.airline)
+  const airlineBrandHex = matchAirlineBrandColor(airlineName)
+  const theme =
+    state.themeMode === 'auto' && airlineBrandHex
+      ? makeBrandTheme(airlineName, airlineBrandHex)
+      : THEMES[state.theme]
   const isLive = state.promoType === 'live'
   const isMobile = state.device === 'mobile'
   const fontScale = isMobile ? 1 : 1.15
@@ -150,6 +159,7 @@ export function derive(
 
   return {
     theme,
+    airlineBrandHex,
     isLive,
     isMobile,
     deviceWidth: isMobile ? 390 : 1060,

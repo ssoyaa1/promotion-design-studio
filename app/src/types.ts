@@ -84,6 +84,8 @@ export interface StudioState {
   promoType: PromoType
   device: Device
   theme: ThemeKey
+  /** 'auto' = 항공사 브랜드 컬러 자동 적용, 'custom' = 사용자가 테마를 직접 선택함. */
+  themeMode: 'auto' | 'custom'
   selectedKey: SectionKey
   order: SectionKey[]
   hidden: Record<string, boolean>

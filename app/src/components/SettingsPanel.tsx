@@ -66,8 +66,8 @@ export function SettingsPanel({
   onExportAll: () => void
   auth: SheetAuth
 }) {
-  const { state, patch, setTheme, ovGet, setOv } = studio
-  const { exportDevLabel, sectionLabel, app } = d
+  const { state, patch, setTheme, setThemeMode, ovGet, setOv } = studio
+  const { exportDevLabel, sectionLabel, app, airlineBrandHex } = d
   const selKey = state.selectedKey
   const selIsVisual = selKey === 'visual'
   const titleSeedCfg = TITLE_SEED_CONFIG[selKey]
@@ -449,7 +449,53 @@ export function SettingsPanel({
         <div style={{ fontSize: 12, fontWeight: 700, color: '#666d75', letterSpacing: '-0.02em', marginBottom: 11 }}>
           스타일 테마
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, justifyItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+          <button
+            onClick={() => setThemeMode('auto')}
+            disabled={!airlineBrandHex}
+            title={airlineBrandHex ? '항공사 브랜드 컬러를 테마로 자동 적용' : '매칭되는 항공사 브랜드 컬러가 없습니다'}
+            style={{
+              flex: 1,
+              height: 32,
+              borderRadius: 99,
+              border: '1px solid #e9ecef',
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              cursor: airlineBrandHex ? 'pointer' : 'not-allowed',
+              opacity: airlineBrandHex ? 1 : 0.45,
+              background: state.themeMode === 'auto' ? '#101418' : '#fff',
+              color: state.themeMode === 'auto' ? '#fff' : '#495056',
+            }}
+          >
+            🎨 브랜드 컬러 자동
+          </button>
+          <button
+            onClick={() => setThemeMode('custom')}
+            style={{
+              flex: 1,
+              height: 32,
+              borderRadius: 99,
+              border: '1px solid #e9ecef',
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              cursor: 'pointer',
+              background: state.themeMode === 'custom' ? '#101418' : '#fff',
+              color: state.themeMode === 'custom' ? '#fff' : '#495056',
+            }}
+          >
+            직접 선택
+          </button>
+        </div>
+        <div style={hintStyle}>
+          {airlineBrandHex
+            ? state.themeMode === 'auto'
+              ? `현재 항공사 브랜드 컬러(${airlineBrandHex})가 자동 적용 중입니다.`
+              : '아래에서 원하는 색상을 직접 선택할 수 있어요.'
+            : '매칭되는 항공사 브랜드 컬러가 없어 기본 테마 색상을 사용합니다.'}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, justifyItems: 'center', marginTop: 10 }}>
           {(Object.keys(THEMES) as ThemeKey[]).map((key) => {
             const t = THEMES[key]
             const on = state.theme === key
