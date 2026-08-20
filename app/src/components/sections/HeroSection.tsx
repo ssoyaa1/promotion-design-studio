@@ -103,7 +103,7 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
           alignItems: 'center',
           textAlign: 'center',
           gap: isMobile ? 18 : 22,
-          minHeight: isLive ? (isMobile ? 488 : 596) : (isMobile ? 432 : 532),
+          minHeight: isLive ? (isMobile ? 528 : 636) : (isMobile ? 472 : 572),
           justifyContent: 'flex-end',
         }}
       >
