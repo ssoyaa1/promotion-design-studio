@@ -25,8 +25,8 @@ const chipStyle = (accent: string, fs: (px: number) => number): React.CSSPropert
 export function LiveBenefitSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { data, ovGet, setOv } = studio
   const { theme, ord, badge, titles, padX, fontScale, fs, firstBadgeKey, lastBadgeKey } = d
-  const padTop = firstBadgeKey === 'prize' ? 56 : 36
-  const padBottom = lastBadgeKey === 'prize' ? 56 : 36
+  const padTop = firstBadgeKey === 'prize' ? 66 : 46
+  const padBottom = lastBadgeKey === 'prize' ? 66 : 46
 
   return (
     <section id="sec-prize" style={{ order: ord['prize'], padding: `${padTop}px ${padX}px ${padBottom}px`, background: theme.soft }}>

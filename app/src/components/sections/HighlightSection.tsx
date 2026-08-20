@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import type { Studio } from '../../state/useStudio'
 import type { Derived } from '../../lib/derive'
 import type { Theme, HighlightRoute } from '../../types'
-import { Editable, EditableTitle, SectionBadge } from './common'
+import { Editable, EditableTitle, SectionBadge, forceTwoLines } from './common'
 import { AIRPORTS, cityQuery } from '../../data/seed'
 import { destIntro } from '../../lib/destCopy'
 import { useCityImage, useLocalCityImage } from '../../lib/unsplashImages'
@@ -96,9 +96,9 @@ function HighlightCard({
           )}
         </div>
         <Editable
-          value={ovGet(`hl${index}intro`, route.label || destIntro(route.to, cityOf(route.to)))}
+          value={forceTwoLines(ovGet(`hl${index}intro`, route.label || destIntro(route.to, cityOf(route.to))))}
           onCommit={(t) => setOv(`hl${index}intro`, t)}
-          style={{ fontSize: fs(15), fontWeight: 500, color: '#666d75', marginTop: 6, letterSpacing: '-0.02em', lineHeight: 1.45, overflow: 'hidden', height: Math.round(2 * 1.45 * fs(15)), wordBreak: 'keep-all', textAlign: 'center' }}
+          style={{ fontSize: fs(15), fontWeight: 500, color: '#666d75', marginTop: 6, letterSpacing: '-0.02em', lineHeight: 1.45, whiteSpace: 'pre-line', overflow: 'hidden', height: Math.round(2 * 1.45 * fs(15)), wordBreak: 'keep-all', textAlign: 'center' }}
         />
       </div>
     </div>
@@ -108,8 +108,8 @@ function HighlightCard({
 export function HighlightSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { state, data, ovGet, setOv } = studio
   const { theme, isMobile, ord, badge, titles, padX, fontScale, fs, firstBadgeKey, lastBadgeKey } = d
-  const padTop = firstBadgeKey === 'highlight' ? 72 : 52
-  const padBottom = lastBadgeKey === 'highlight' ? 72 : 52
+  const padTop = firstBadgeKey === 'highlight' ? 82 : 62
+  const padBottom = lastBadgeKey === 'highlight' ? 82 : 62
 
   const count = data.highlight.length
   // PC: 4개→2열, 나머지(3·5·6)→3열, 카드 폭 고정(190px) + 중앙 정렬

@@ -1,32 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { Item } from '../../types'
-import { Editable, EditableTitle, SectionBadge } from './common'
+import { Editable, EditableTitle, SectionBadge, forceTwoLines } from './common'
 import { BenefitIcon, BenefitImage } from '../../lib/benefitIcons'
 
 export type ChecklistVariant = 'list' | 'right' | 'grid'
-
-/**
- * 한 줄로 표시 가능한 짧은 문구도 항상 2줄로 보이게 강제 줄바꿈을 넣는다(이미
- * \n이 있으면 그대로 둠). 공백 중 중앙에 가장 가까운 지점을 우선 쓰고(단어가
- * 잘리지 않도록), 공백이 전혀 없는 텍스트는 글자 수 중간 지점에서 나눈다.
- */
-function forceTwoLines(text: string): string {
-  const t = text.trim()
-  if (!t || t.includes('\n')) return t
-  const mid = t.length / 2
-  let bestIdx = -1
-  let bestDist = Infinity
-  for (let i = 0; i < t.length; i++) {
-    if (t[i] === ' ') {
-      const dist = Math.abs(i - mid)
-      if (dist < bestDist) { bestDist = dist; bestIdx = i }
-    }
-  }
-  if (bestIdx !== -1) return t.slice(0, bestIdx) + '\n' + t.slice(bestIdx + 1)
-  if (t.length < 2) return t
-  const cut = Math.ceil(t.length / 2)
-  return t.slice(0, cut) + '\n' + t.slice(cut)
-}
 
 /**
  * list/right(가로형 카드)의 텍스트 컬럼. 보이지 않는 측정용 span으로 서브 문구가
@@ -287,7 +264,7 @@ export function ChecklistSection({
   return (
     <section
       id={id}
-      style={{ order, padding: `${extraTopPad ? 56 : 36}px ${padX}px ${extraBottomPad ? 56 : 36}px`, background: '#fff' }}
+      style={{ order, padding: `${extraTopPad ? 66 : 46}px ${padX}px ${extraBottomPad ? 66 : 46}px`, background: '#fff' }}
     >
       <SectionBadge label={badge} accent={accent} scale={scale} />
       <EditableTitle value={ovGet(titleKey, title)} onCommit={(t) => setOv(titleKey, t)} scale={scale} />

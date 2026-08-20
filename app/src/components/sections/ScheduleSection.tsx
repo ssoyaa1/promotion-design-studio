@@ -97,8 +97,8 @@ function ScheduleRow({
 export function ScheduleSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { data, ovGet, setOv } = studio
   const { theme, isLive, ord, badge, titles, padX, fontScale, fs, firstBadgeKey, lastBadgeKey } = d
-  const padTop = firstBadgeKey === 'schedule' ? 56 : 36
-  const padBottom = lastBadgeKey === 'schedule' ? 56 : 36
+  const padTop = firstBadgeKey === 'schedule' ? 66 : 46
+  const padBottom = lastBadgeKey === 'schedule' ? 66 : 46
 
   return (
     <section
