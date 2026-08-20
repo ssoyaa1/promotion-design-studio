@@ -106,8 +106,8 @@ export function ChecklistSection({
     border: '1px solid #e9ecef',
     borderRadius: 20,
   }
-  // grid(구매 혜택)는 서브 문구도 타이틀처럼 항상 2줄로 강제 노출한다.
-  const detailForceTwoLines = variant === 'grid'
+  // grid(구매 혜택)·list(항공사 강조)는 서브 문구도 타이틀처럼 항상 2줄로 강제 노출한다.
+  const detailForceTwoLines = variant === 'grid' || variant === 'list'
   const detailEl = (i: number, b: Item, center: boolean, topGap = 3) => {
     const raw = ovGet(`${ovPrefix}${i}d`, b.d)
     if (!raw) return null
