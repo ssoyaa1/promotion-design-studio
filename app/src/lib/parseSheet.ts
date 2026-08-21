@@ -52,15 +52,9 @@ function benefitRows(rows: Row[]): Item[] {
     .filter((x) => x.t)
 }
 
-/** `수량`처럼 숫자만 있는 값을 경품 상세 문구로 다듬는다. */
-function prizeDetail(d: string): string {
-  const n = d.trim()
-  return /^\d+$/.test(n) ? `· ${n}명` : d
-}
-
 /**
- * 라이브 경품 전용 파서: 서브 문구는 항상 [수량] 컬럼 값을 사용한다
- * (다른 혜택 테이블처럼 [서브 문구]/[내용]으로 대체되지 않도록 분리).
+ * 라이브 경품 전용 파서: 서브 문구는 항상 [서브 문구] 컬럼 값을 사용한다
+ * (다른 혜택 테이블처럼 [내용]/[수량]으로 대체되지 않도록 분리).
  */
 function prizeRows(rows: Row[]): Item[] {
   return rows
@@ -69,10 +63,10 @@ function prizeRows(rows: Row[]): Item[] {
       const catKey = keys.find((k) => /구분|카테고리|category/i.test(k))
       const titleKey = keys.find((k) => /혜택명|타이틀|제목|경품명|이름|title/i.test(k))
       const mainKey = keys.find((k) => /메인\s*문구/i.test(k))
-      const qtyKey = keys.find((k) => /수량/i.test(k))
-      const rest = keys.filter((k) => k !== catKey && k !== titleKey && k !== mainKey && k !== qtyKey)
+      const subKey = keys.find((k) => /서브\s*문구/i.test(k))
+      const rest = keys.filter((k) => k !== catKey && k !== titleKey && k !== mainKey && k !== subKey)
       const t = ((mainKey ? o[mainKey] : titleKey ? o[titleKey] : o[rest[0]]) || '').trim()
-      const d = (qtyKey ? o[qtyKey] : '') || ''
+      const d = (subKey ? o[subKey] : '') || ''
       const cat = ((catKey ? o[catKey] : '') || '').trim()
       return { t, d: d.trim(), cat }
     })
@@ -257,10 +251,10 @@ export function buildData(
   // 라이브 혜택 · 구매 혜택: [구분][혜택명][내용] → 구분으로 이미지 매칭.
   const lb = benefitRows(T('라이브 혜택'))
   if (lb.length) D.liveBenefits = lb
-  // 라이브 경품: [구분][경품명][수량] → 구분으로 이미지 매칭(혜택/구매와 동일 방식).
-  // 서브 문구는 항상 [수량] 컬럼 값(prizeRows가 고정 소싱).
+  // 라이브 경품: [구분][경품명][서브 문구] → 구분으로 이미지 매칭(혜택/구매와 동일 방식).
+  // 서브 문구는 항상 [서브 문구] 컬럼 값(prizeRows가 고정 소싱).
   const pz = prizeRows(T('라이브 경품'))
-  if (pz.length) D.prizes = pz.map((p) => ({ ...p, d: prizeDetail(p.d) }))
+  if (pz.length) D.prizes = pz
   const pb = benefitRows(T('구매 혜택'))
   if (pb.length) D.purchaseBenefits = pb
 
