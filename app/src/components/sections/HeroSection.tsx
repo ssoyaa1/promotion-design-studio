@@ -9,7 +9,7 @@ const SKY_IMAGES = Array.from({ length: SKY_COUNT }, (_, i) => `/assets/sky/sky_
 
 export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
   const { state, data, ovGet, setOv } = studio
-  const { theme, isLive, isMobile, ord, fs } = d
+  const { theme, isLive, isMobile, ord, fs, heroTitle2 } = d
   const heroImage = state.heroImage
   const airline = ovGet('airline', data.airline)
   const titleFontKey = ovGet('heroTitleFont', HERO_TITLE_FONTS[state.heroTitleFontSeed]?.key || 'pretendard')
@@ -188,7 +188,7 @@ export function HeroSection({ studio, d }: { studio: Studio; d: Derived }) {
           <Editable as="span" value={airline} onCommit={(t) => setOv('airline', t)} style={{ display: 'block' }} />
           <Editable
             as="span"
-            value={ovGet('heroTitle2', '단독 특가 프로모션')}
+            value={ovGet('heroTitle2', heroTitle2)}
             onCommit={(t) => setOv('heroTitle2', t)}
             style={{ display: 'block' }}
           />

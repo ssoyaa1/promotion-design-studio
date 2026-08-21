@@ -43,8 +43,21 @@ export interface Derived {
     airline: string
     highlight: string
   }
+  /** 메인 비주얼 타이틀 2번째 줄 기본값 — [프로모션 제목]에서 항공사명을 뗀 나머지. */
+  heroTitle2: string
   counts: { visibleCount: number; highlightCount: number; totalRouteCount: number }
   exportDevLabel: 'MO' | 'PC'
+}
+
+/**
+ * [프로모션 제목]은 항상 "항공사명 + 타이틀 문구" 형식이라, 앞의 항공사명을 떼면
+ * 메인 비주얼 2번째 줄에 쓸 나머지 문구가 남는다.
+ */
+function stripAirlinePrefix(promoName: string, airline: string): string {
+  const name = promoName.trim()
+  const air = airline.trim()
+  if (name && air && name.startsWith(air)) return name.slice(air.length).trim()
+  return name
 }
 
 function baseLabel(k: SectionKey, isLive: boolean): string | null {
@@ -187,6 +200,7 @@ export function derive(
       airline: pickAirlineTitle(airlineName, state.airlineTitleSeed ?? 0),
       highlight: pickHighlightTitle(data.airline, state.highlightTitleSeed ?? 0),
     },
+    heroTitle2: stripAirlinePrefix(data.promoName, airlineName) || '단독 특가 프로모션',
     counts: {
       visibleCount: app.filter((k) => !state.hidden[k]).length,
       highlightCount: data.highlight.length,
