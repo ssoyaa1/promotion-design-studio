@@ -208,7 +208,7 @@ export const EN: Record<BaseSectionKey, string> = {
 
 /** Default section order. `airline`/`prize` are conditionally applicable. */
 export const BASE_ORDER: BaseSectionKey[] = [
-  'visual', 'schedule', 'airline', 'prize', 'purchase', 'highlight', 'cta',
+  'visual', 'schedule', 'prize', 'purchase', 'airline', 'highlight', 'cta',
 ]
 
 /** Index into the curated UNSPLASH list, used only when images are toggled on. */
