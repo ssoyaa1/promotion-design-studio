@@ -56,6 +56,24 @@ async function flattenBenefitIcons(root: HTMLElement): Promise<() => void> {
 }
 
 /**
+ * Unsplash 등 외부 이미지는 `<img>`에 crossOrigin이 없으면 캔버스에 그리는 순간
+ * "오염(tainted)"되어 이후 toDataURL()이 SecurityError로 실패한다. 같은 origin이거나
+ * data: URL이면 원본 엘리먼트를 그대로 쓰고, 외부 이미지는 crossOrigin="anonymous"로
+ * 새로 로드한 사본을 그려야 안전하다.
+ */
+function loadCorsSafeImage(img: HTMLImageElement): Promise<HTMLImageElement> {
+  const isSafe = img.src.startsWith('data:') || new URL(img.src, location.href).origin === location.origin
+  if (isSafe) return Promise.resolve(img)
+  return new Promise((resolve, reject) => {
+    const copy = new Image()
+    copy.crossOrigin = 'anonymous'
+    copy.onload = () => resolve(copy)
+    copy.onerror = () => reject(new Error('cors-load-failed'))
+    copy.src = img.src
+  })
+}
+
+/**
  * html2canvas는 CSS `object-fit`을 지원하지 않아 `object-fit: cover` 이미지를
  * 화면에서 보이는 크롭 없이 컨테이너 크기로 그냥 늘려버린다(비율 깨짐). 캡처
  * 직전 실제 크롭 결과를 캔버스에 구워 `src`에 임시로 꽂고, 캡처 후 원복한다.
@@ -67,24 +85,30 @@ async function flattenCoverImages(root: HTMLElement): Promise<() => void> {
   const originals = imgs.map((img) => img.src)
   await Promise.all(
     imgs.map(async (img) => {
-      const rect = img.getBoundingClientRect()
-      const natW = img.naturalWidth
-      const natH = img.naturalHeight
-      if (!rect.width || !rect.height || !natW || !natH) return
-      // object-fit: cover와 동일하게 짧은 쪽을 채우도록 확대한 뒤 중앙을 기준으로 크롭.
-      const coverScale = Math.max(rect.width / natW, rect.height / natH)
-      const sw = rect.width / coverScale
-      const sh = rect.height / coverScale
-      const sx = (natW - sw) / 2
-      const sy = (natH - sh) / 2
-      const canvas = document.createElement('canvas')
-      canvas.width = Math.round(rect.width * CAPTURE_OPTS.scale)
-      canvas.height = Math.round(rect.height * CAPTURE_OPTS.scale)
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
-      img.src = canvas.toDataURL('image/png')
-      await img.decode().catch(() => {})
+      try {
+        const rect = img.getBoundingClientRect()
+        if (!rect.width || !rect.height) return
+        const source = await loadCorsSafeImage(img)
+        const natW = source.naturalWidth
+        const natH = source.naturalHeight
+        if (!natW || !natH) return
+        // object-fit: cover와 동일하게 짧은 쪽을 채우도록 확대한 뒤 중앙을 기준으로 크롭.
+        const coverScale = Math.max(rect.width / natW, rect.height / natH)
+        const sw = rect.width / coverScale
+        const sh = rect.height / coverScale
+        const sx = (natW - sw) / 2
+        const sy = (natH - sh) / 2
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(rect.width * CAPTURE_OPTS.scale)
+        canvas.height = Math.round(rect.height * CAPTURE_OPTS.scale)
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return
+        ctx.drawImage(source, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
+        img.src = canvas.toDataURL('image/png')
+        await img.decode().catch(() => {})
+      } catch {
+        // CORS 등으로 실패하면 이 이미지는 원본 그대로 두고 다른 이미지/섹션 캡처는 계속한다.
+      }
     }),
   )
   return () => imgs.forEach((img, i) => { img.src = originals[i] })
