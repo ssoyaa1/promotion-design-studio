@@ -86,6 +86,7 @@ export function SectionBadge({ label, accent, scale = 1 }: { label?: string; acc
           fontSize: 14 * scale,
           fontWeight: 600,
           letterSpacing: '-0.01em',
+          lineHeight: 1,
           padding: '6px 10px',
           borderRadius: 99,
         }}

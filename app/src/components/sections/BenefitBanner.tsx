@@ -59,6 +59,7 @@ export function BenefitBanner({
             fontSize: fs(12),
             fontWeight: 600,
             letterSpacing: '-0.02em',
+            lineHeight: 1,
             padding: '5px 11px',
             borderRadius: 99,
             whiteSpace: 'nowrap',
