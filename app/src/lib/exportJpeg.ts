@@ -3,7 +3,7 @@ import JSZip from 'jszip'
 import type { SectionKey } from '../types'
 
 const CAPTURE_OPTS = {
-  scale: 2,
+  scale: 3,
   backgroundColor: '#ffffff',
   useCORS: true,
   logging: false,
@@ -55,16 +55,53 @@ async function flattenBenefitIcons(root: HTMLElement): Promise<() => void> {
   return () => imgs.forEach((img, i) => { img.src = originals[i] })
 }
 
+/**
+ * html2canvas는 CSS `object-fit`을 지원하지 않아 `object-fit: cover` 이미지를
+ * 화면에서 보이는 크롭 없이 컨테이너 크기로 그냥 늘려버린다(비율 깨짐). 캡처
+ * 직전 실제 크롭 결과를 캔버스에 구워 `src`에 임시로 꽂고, 캡처 후 원복한다.
+ */
+async function flattenCoverImages(root: HTMLElement): Promise<() => void> {
+  const imgs = Array.from(root.querySelectorAll<HTMLImageElement>('img')).filter(
+    (img) => img.style.objectFit === 'cover',
+  )
+  const originals = imgs.map((img) => img.src)
+  await Promise.all(
+    imgs.map(async (img) => {
+      const rect = img.getBoundingClientRect()
+      const natW = img.naturalWidth
+      const natH = img.naturalHeight
+      if (!rect.width || !rect.height || !natW || !natH) return
+      // object-fit: cover와 동일하게 짧은 쪽을 채우도록 확대한 뒤 중앙을 기준으로 크롭.
+      const coverScale = Math.max(rect.width / natW, rect.height / natH)
+      const sw = rect.width / coverScale
+      const sh = rect.height / coverScale
+      const sx = (natW - sw) / 2
+      const sy = (natH - sh) / 2
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(rect.width * CAPTURE_OPTS.scale)
+      canvas.height = Math.round(rect.height * CAPTURE_OPTS.scale)
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
+      img.src = canvas.toDataURL('image/png')
+      await img.decode().catch(() => {})
+    }),
+  )
+  return () => imgs.forEach((img, i) => { img.src = originals[i] })
+}
+
 /** Capture one `#sec-*` node → Blob. Returns null if node not found. */
 async function captureBlob(key: SectionKey): Promise<Blob | null> {
   const node = document.getElementById('sec-' + key)
   if (!node) return null
-  const restore = await flattenBenefitIcons(node)
+  const restoreBenefit = await flattenBenefitIcons(node)
+  const restoreCover = await flattenCoverImages(node)
   try {
     const canvas = await html2canvas(node, CAPTURE_OPTS)
     return await canvasToBlob(canvas)
   } finally {
-    restore()
+    restoreCover()
+    restoreBenefit()
   }
 }
 
